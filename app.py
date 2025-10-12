@@ -1,914 +1,882 @@
 import streamlit as st
-import sqlite3
-import pandas as pd
-import bcrypt
 import json
-import smtplib
-import time
-import random
 from datetime import datetime
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
-from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager
-from typing import Optional, Dict, List, Tuple, Any
-import os
-import hashlib
+from PIL import Image, ImageDraw, ImageFont
 import io
-from dotenv import load_dotenv
+import base64
 
-# Carregar variáveis de ambiente
-load_dotenv()
+# ============================================================================
+# 1. CONFIGURAÇÃO STREAMLIT
+# ============================================================================
 
-# Configurações
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASS = os.getenv("SMTP_PASS", "")
-OWNER_EMAIL = os.getenv("OWNER_EMAIL", "")
-SECRET_KEY = os.getenv("SECRET_KEY", "default-secret-key-change-in-production")
-DEFAULT_ADMIN_PASS = "admin123"
-MAX_RETRIES = 3
-DB_PATH = "survey.db"
+st.set_page_config(
+    page_title="Linux Game - Terminal Educativo",
+    page_icon="🐧",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# Pool de conexões SQLite
-class ConnectionPool:
-    def __init__(self, db_path, pool_size=5):
-        self.db_path = db_path
-        self.pool = []
-        self.pool_size = pool_size
-        self._init_pool()
-    
-    def _init_pool(self):
-        for _ in range(self.pool_size):
-            conn = sqlite3.connect(self.db_path, check_same_thread=False, timeout=30)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute("PRAGMA synchronous=NORMAL")
-            self.pool.append(conn)
-    
-    @contextmanager
-    def get_connection(self):
-        conn = self.pool.pop() if self.pool else sqlite3.connect(
-            self.db_path, check_same_thread=False, timeout=30
-        )
-        try:
-            yield conn
-        finally:
-            if len(self.pool) < self.pool_size:
-                self.pool.append(conn)
-            else:
-                conn.close()
+# ============================================================================
+# 2. CUSTOM CSS - ESTILO TERMINAL MS-DOS
+# ============================================================================
 
-# Inicializar pool global
-if 'db_pool' not in st.session_state:
-    st.session_state.db_pool = ConnectionPool(DB_PATH)
-
-# Executor para tarefas em background
-executor = ThreadPoolExecutor(max_workers=3)
-
-# CSS customizado
-def inject_css():
+def inject_custom_css():
     st.markdown("""
     <style>
-    .question-container {
-        min-height: 300px;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 10px;
-        margin: 20px 0;
-    }
-    .progress-bar {
-        width: 100%;
-        height: 8px;
-        background: #e9ecef;
-        border-radius: 4px;
-        overflow: hidden;
-        margin: 20px 0;
-    }
-    .progress-fill {
-        height: 100%;
-        background: #007bff;
-        transition: width 0.3s ease;
-    }
-    .question-counter {
-        text-align: center;
-        color: #6c757d;
-        margin: 10px 0;
-        font-size: 14px;
-    }
-    textarea {
-        min-height: 100px !important;
-        max-height: 120px !important;
-    }
+        /* Importar fonte monoespaçada */
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+        
+        /* Reset geral */
+        .main {
+            background-color: #000000;
+        }
+        
+        /* DESABILITAR BOTÃO DE FECHAR SIDEBAR - MANTER SEMPRE ABERTO */
+        [data-testid="stSidebarCollapseButton"] {
+            display: none !important;
+        }
+        
+        /* FORÇAR SIDEBAR SEMPRE VISÍVEL */
+        [data-testid="stSidebar"] {
+            display: block !important;
+            visibility: visible !important;
+            transform: none !important;
+            transition: none !important;
+        }
+        
+        section[data-testid="stSidebar"] {
+            width: 21rem !important;
+            min-width: 21rem !important;
+        }
+        
+        section[data-testid="stSidebar"] > div {
+            width: 21rem !important;
+            min-width: 21rem !important;
+        }
+        
+        /* Terminal container */
+        .terminal-container {
+            background-color: #000000;
+            color: #00FF00;
+            font-family: 'Courier Prime', 'Courier New', Consolas, monospace;
+            font-size: 16px;
+            padding: 20px;
+            border-radius: 5px;
+            border: 2px solid #00FF00;
+            min-height: 500px;
+            max-height: 600px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        /* Prompt */
+        .terminal-prompt {
+            color: #00FF00;
+            font-weight: bold;
+        }
+        
+        /* Comando digitado */
+        .terminal-command {
+            color: #00FFFF;
+            font-weight: bold;
+        }
+        
+        /* Feedback sucesso */
+        .terminal-success {
+            color: #00FF00;
+            font-weight: bold;
+        }
+        
+        /* Feedback erro */
+        .terminal-error {
+            color: #FF0000;
+            font-weight: bold;
+        }
+        
+        /* Texto normal */
+        .terminal-text {
+            color: #FFFFFF;
+        }
+        
+        /* Narrativa */
+        .terminal-narrative {
+            color: #FFFF00;
+            font-style: italic;
+        }
+        
+        /* Sidebar styling */
+        .css-1d391kg {
+            background-color: #1a1a1a;
+        }
+        
+        /* Input field customization */
+        .stTextInput > div > div > input {
+            background-color: #000000;
+            color: #00FF00;
+            font-family: 'Courier Prime', 'Courier New', monospace;
+            font-size: 16px;
+            border: 2px solid #00FF00;
+        }
+        
+        /* Progress bar */
+        .stProgress > div > div > div > div {
+            background-color: #00FF00;
+        }
+        
+        /* Botão estilo terminal */
+        .stButton > button {
+            background-color: #003300;
+            color: #00FF00;
+            border: 2px solid #00FF00;
+            font-family: 'Courier Prime', monospace;
+            font-weight: bold;
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+        
+        .stButton > button:hover {
+            background-color: #00FF00;
+            color: #000000;
+            border-color: #00FF00;
+        }
+        
+        /* Esconder elementos desnecessários */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
-
-# Funções de banco de dados
-def init_database():
-    """Inicializa o banco de dados com as tabelas necessárias"""
-    with st.session_state.db_pool.get_connection() as conn:
-        c = conn.cursor()
-        
-        # Tabela de configuração admin
-        c.execute('''CREATE TABLE IF NOT EXISTS admin_config
-                     (id INTEGER PRIMARY KEY, 
-                      password_hash TEXT NOT NULL,
-                      is_default_pass BOOLEAN DEFAULT 1,
-                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-        
-        # Tabela de pesquisas
-        c.execute('''CREATE TABLE IF NOT EXISTS surveys
-                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                      title TEXT NOT NULL,
-                      questions TEXT NOT NULL,
-                      is_active BOOLEAN DEFAULT 1,
-                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                      closed_at TIMESTAMP)''')
-        
-        # Tabela de respostas
-        c.execute('''CREATE TABLE IF NOT EXISTS responses
-                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                      survey_id INTEGER NOT NULL,
-                      answers TEXT NOT NULL,
-                      is_anonymous BOOLEAN DEFAULT 1,
-                      respondent_name TEXT,
-                      respondent_email TEXT,
-                      ip_address TEXT,
-                      submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                      FOREIGN KEY (survey_id) REFERENCES surveys (id))''')
-        
-        # Tabela de rate limiting
-        c.execute('''CREATE TABLE IF NOT EXISTS rate_limits
-                     (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                      session_id TEXT NOT NULL,
-                      action TEXT NOT NULL,
-                      timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
-        
-        # Inserir senha admin padrão se não existir
-        c.execute("SELECT COUNT(*) FROM admin_config")
-        if c.fetchone()[0] == 0:
-            hashed = bcrypt.hashpw(DEFAULT_ADMIN_PASS.encode('utf-8'), bcrypt.gensalt())
-            c.execute("INSERT INTO admin_config (password_hash) VALUES (?)", (hashed.decode('utf-8'),))
-        
-        conn.commit()
-
-def check_rate_limit(session_id: str, action: str, max_requests: int = 50, window_seconds: int = 300) -> bool:
-    """Verifica rate limiting com limites mais permissivos para pesquisas"""
-    with st.session_state.db_pool.get_connection() as conn:
-        c = conn.cursor()
-        c.execute("""
-            SELECT COUNT(*) FROM rate_limits 
-            WHERE session_id = ? AND action = ? 
-            AND datetime(timestamp) > datetime('now', '-' || ? || ' seconds')
-        """, (session_id, action, window_seconds))
-        count = c.fetchone()[0]
-        
-        if count >= max_requests:
-            return False
-        
-        c.execute("INSERT INTO rate_limits (session_id, action) VALUES (?, ?)", 
-                 (session_id, action))
-        conn.commit()
-        return True
-
-def verify_admin_password(password: str) -> Tuple[bool, bool]:
-    """Verifica senha admin e retorna (is_valid, is_default)"""
-    with st.session_state.db_pool.get_connection() as conn:
-        c = conn.cursor()
-        c.execute("SELECT password_hash, is_default_pass FROM admin_config LIMIT 1")
-        result = c.fetchone()
-        
-        if result:
-            stored_hash, is_default = result
-            is_valid = bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8'))
-            return is_valid, bool(is_default)
-    return False, False
-
-def update_admin_password(new_password: str):
-    """Atualiza senha do admin"""
-    with st.session_state.db_pool.get_connection() as conn:
-        c = conn.cursor()
-        hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-        c.execute("UPDATE admin_config SET password_hash = ?, is_default_pass = 0", 
-                 (hashed.decode('utf-8'),))
-        conn.commit()
-
-@st.cache_data(ttl=60)
-def get_active_survey() -> Optional[Dict]:
-    """Obtém pesquisa ativa com cache"""
-    with st.session_state.db_pool.get_connection() as conn:
-        c = conn.cursor()
-        c.execute("SELECT id, title, questions FROM surveys WHERE is_active = 1 ORDER BY id DESC LIMIT 1")
-        result = c.fetchone()
-        if result:
-            return {
-                'id': result[0],
-                'title': result[1],
-                'questions': json.loads(result[2])
+    
+    # JavaScript para garantir sidebar sempre visível
+    st.markdown("""
+    <script>
+        function keepSidebarOpen() {
+            const parentDoc = window.parent.document;
+            
+            // Remover qualquer classe que oculte o sidebar
+            const sidebar = parentDoc.querySelector('[data-testid="stSidebar"]');
+            if (sidebar) {
+                sidebar.style.display = 'block';
+                sidebar.style.visibility = 'visible';
+                sidebar.style.transform = 'none';
+                sidebar.classList.remove('collapsed');
             }
+            
+            // Esconder botão de colapso
+            const collapseBtn = parentDoc.querySelector('[data-testid="stSidebarCollapseButton"]');
+            if (collapseBtn) {
+                collapseBtn.style.display = 'none';
+            }
+        }
+        
+        // Executar continuamente
+        setInterval(keepSidebarOpen, 50);
+        
+        // Observer
+        const observer = new MutationObserver(keepSidebarOpen);
+        if (window.parent.document.body) {
+            observer.observe(window.parent.document.body, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class', 'style']
+            });
+        }
+    </script>
+    """, unsafe_allow_html=True)
+
+# ============================================================================
+# 3. CARREGAR DADOS
+# ============================================================================
+
+@st.cache_data
+def load_commands():
+    """Carrega comandos do arquivo JSON"""
+    try:
+        with open('comandos.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        st.error(f"Erro ao carregar comandos.json: {e}")
+        return []
+
+# ============================================================================
+# 4. ESTRUTURA DE FASES
+# ============================================================================
+
+def create_phases(commands):
+    """Cria 17 fases temáticas com narrativa"""
+    
+    phases = [
+        {
+            "nome": "Primeiros Passos no Terminal",
+            "narrativa": "🕵️ Detetive {nome}, você acaba de receber um chamado urgente!\n🦹 O vilão CÁLCULUS hackeou os sistemas da cidade e está deixando pistas em servidores Linux.\n🎯 MISSÃO: Dominar os comandos básicos para rastrear o vilão!",
+            "comandos": commands[0:10]
+        },
+        {
+            "nome": "Investigando Arquivos",
+            "narrativa": "🔍 Ótimo trabalho! Você encontrou o primeiro servidor comprometido.\n📂 Há arquivos suspeitos espalhados. Precisamos analisá-los!\n🎯 MISSÃO: Aprenda a visualizar e manipular arquivos.",
+            "comandos": commands[10:20]
+        },
+        {
+            "nome": "Manipulação Avançada",
+            "narrativa": "💾 CÁLCULUS deixou arquivos criptografados!\n🔐 Precisamos copiar, mover e criar links para preservar evidências.\n🎯 MISSÃO: Domine operações avançadas com arquivos.",
+            "comandos": commands[20:30]
+        },
+        {
+            "nome": "Gerenciamento de Processos",
+            "narrativa": "⚡ Detectamos processos maliciosos rodando no sistema!\n🎭 CÁLCULUS está executando scripts em segundo plano.\n🎯 MISSÃO: Aprenda a monitorar e encerrar processos.",
+            "comandos": commands[30:40]
+        },
+        {
+            "nome": "Conexões de Rede",
+            "narrativa": "🌐 Encontramos atividade de rede suspeita!\n📡 CÁLCULUS está se conectando a servidores remotos.\n🎯 MISSÃO: Domine comandos de SSH e conectividade.",
+            "comandos": commands[40:50]
+        },
+        {
+            "nome": "Busca e Pesquisa",
+            "narrativa": "🔎 As pistas estão espalhadas em centenas de arquivos!\n📋 Precisamos usar buscas avançadas para encontrar evidências.\n🎯 MISSÃO: Aprenda grep, locate e find.",
+            "comandos": commands[50:60]
+        },
+        {
+            "nome": "Informações do Sistema",
+            "narrativa": "🖥️ Precisamos conhecer o terreno!\n📊 Vamos coletar informações sobre o sistema comprometido.\n🎯 MISSÃO: Domine comandos de diagnóstico.",
+            "comandos": commands[60:70]
+        },
+        {
+            "nome": "Compactação e Arquivos",
+            "narrativa": "📦 CÁLCULUS escondeu dados em arquivos compactados!\n🗜️ Precisamos extrair e analisar esses pacotes.\n🎯 MISSÃO: Aprenda tar, gzip e compactação.",
+            "comandos": commands[70:80]
+        },
+        {
+            "nome": "Rede Avançada",
+            "narrativa": "🌐 Rastreamento de rede em andamento!\n🔌 Vamos investigar conexões e portas abertas.\n🎯 MISSÃO: Domine ping, whois, dig e wget.",
+            "comandos": commands[80:90]
+        },
+        {
+            "nome": "Instalação de Software",
+            "narrativa": "💿 Precisamos instalar ferramentas forenses!\n🛠️ CÁLCULUS modificou pacotes do sistema.\n🎯 MISSÃO: Aprenda dpkg, rpm e compilação.",
+            "comandos": commands[90:100]
+        },
+        {
+            "nome": "Hardware e Arquitetura",
+            "narrativa": "🔧 Análise forense do hardware!\n💻 Vamos identificar todos os componentes do sistema.\n🎯 MISSÃO: Domine comandos de diagnóstico de hardware.",
+            "comandos": commands[100:110]
+        },
+        {
+            "nome": "Armazenamento e Discos",
+            "narrativa": "💾 Investigação de discos e partições!\n📊 CÁLCULUS pode ter escondido dados em partições ocultas.\n🎯 MISSÃO: Aprenda df, du e análise de espaço.",
+            "comandos": commands[110:120]
+        },
+        {
+            "nome": "Informações Detalhadas",
+            "narrativa": "🔬 Análise profunda do sistema!\n📡 Vamos coletar informações sobre rede, dispositivos e processos.\n🎯 MISSÃO: Domine lspci, lsusb e proc.",
+            "comandos": commands[120:130]
+        },
+        {
+            "nome": "Data e Hora",
+            "narrativa": "⏰ Precisamos estabelecer uma linha do tempo!\n📅 Quando CÁLCULUS atacou? Vamos investigar logs de tempo.\n🎯 MISSÃO: Aprenda date, cal e uptime.",
+            "comandos": commands[130:140]
+        },
+        {
+            "nome": "Controle de Sistema",
+            "narrativa": "🔴 Sistema crítico! Aprenda a controlar o desligamento.\n⚡ Precisamos reiniciar servidores com segurança.\n🎯 MISSÃO: Domine shutdown, reboot e halt.",
+            "comandos": commands[140:150]
+        },
+        {
+            "nome": "Navegação Avançada e Permissões",
+            "narrativa": "🗂️ Navegação avançada necessária!\n🔐 CÁLCULUS modificou permissões de arquivos críticos.\n🎯 MISSÃO: Domine navegação e sistema de permissões.",
+            "comandos": commands[150:170]
+        },
+        {
+            "nome": "CONFRONTO FINAL",
+            "narrativa": "🚨 ALERTA MÁXIMO! Você está no servidor principal de CÁLCULUS!\n🦹 Este é o confronto final! Ele deixou os comandos mais complexos como última defesa.\n🎯 MISSÃO FINAL: Prove que você é um mestre Linux!",
+            "comandos": commands[170:] if len(commands) > 170 else []
+        }
+    ]
+    
+    return phases
+
+# ============================================================================
+# 5. INICIALIZAR SESSION STATE
+# ============================================================================
+
+def init_session_state():
+    """Inicializa todas as variáveis de sessão"""
+    
+    if 'comandos' not in st.session_state:
+        st.session_state.comandos = load_commands()
+    
+    if 'phases' not in st.session_state:
+        st.session_state.phases = create_phases(st.session_state.comandos)
+    
+    if 'nome_jogador' not in st.session_state:
+        st.session_state.nome_jogador = ""
+    
+    if 'fase_atual' not in st.session_state:
+        st.session_state.fase_atual = 0
+    
+    if 'comando_atual_index' not in st.session_state:
+        st.session_state.comando_atual_index = 0
+    
+    if 'comandos_completados' not in st.session_state:
+        st.session_state.comandos_completados = 0
+    
+    if 'historico_terminal' not in st.session_state:
+        st.session_state.historico_terminal = []
+    
+    if 'game_started' not in st.session_state:
+        st.session_state.game_started = False
+    
+    if 'game_completed' not in st.session_state:
+        st.session_state.game_completed = False
+    
+    if 'tentativas_erro' not in st.session_state:
+        st.session_state.tentativas_erro = 0
+    
+    if 'input_key' not in st.session_state:
+        st.session_state.input_key = 0
+    
+    if 'mostrar_ajuda' not in st.session_state:
+        st.session_state.mostrar_ajuda = False
+
+# ============================================================================
+# 6. FUNÇÕES DO JOGO
+# ============================================================================
+
+def get_current_command():
+    """Retorna o comando atual que o jogador precisa digitar"""
+    if st.session_state.fase_atual < len(st.session_state.phases):
+        phase = st.session_state.phases[st.session_state.fase_atual]
+        if st.session_state.comando_atual_index < len(phase['comandos']):
+            return phase['comandos'][st.session_state.comando_atual_index]
     return None
 
-def create_survey(title: str, questions: List[Dict]):
-    """Cria nova pesquisa"""
-    # Desativar pesquisas anteriores
-    with st.session_state.db_pool.get_connection() as conn:
-        c = conn.cursor()
-        c.execute("UPDATE surveys SET is_active = 0, closed_at = CURRENT_TIMESTAMP WHERE is_active = 1")
-        
-        # Criar nova pesquisa
-        c.execute("INSERT INTO surveys (title, questions) VALUES (?, ?)",
-                 (title, json.dumps(questions)))
-        conn.commit()
+def validate_command(user_input):
+    """Valida se o comando digitado está correto"""
+    current_cmd = get_current_command()
     
-    # Limpar cache
-    get_active_survey.clear()
-
-def save_response(survey_id: int, answers: Dict, is_anonymous: bool, name: str = None, email: str = None):
-    """Salva resposta da pesquisa"""
-    session_id = st.session_state.get('session_id', 'unknown')
-    
-    with st.session_state.db_pool.get_connection() as conn:
-        c = conn.cursor()
-        c.execute("""
-            INSERT INTO responses (survey_id, answers, is_anonymous, respondent_name, 
-                                 respondent_email, ip_address)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (survey_id, json.dumps(answers), is_anonymous, name, email, session_id))
-        conn.commit()
-
-def export_responses_to_csv(survey_id: int) -> bytes:
-    """Exporta respostas para CSV"""
-    with st.session_state.db_pool.get_connection() as conn:
-        c = conn.cursor()
-        
-        # Obter dados da pesquisa
-        c.execute("SELECT title, questions FROM surveys WHERE id = ?", (survey_id,))
-        survey = c.fetchone()
-        if not survey:
-            return None
-        
-        questions = json.loads(survey[1])
-        
-        # Obter respostas
-        c.execute("""
-            SELECT id, submitted_at, answers, is_anonymous, respondent_name, respondent_email
-            FROM responses WHERE survey_id = ?
-            ORDER BY submitted_at
-        """, (survey_id,))
-        
-        responses = c.fetchall()
-        
-        # Preparar dados para CSV
-        data = []
-        for resp in responses:
-            row = {
-                'ID': resp[0],
-                'Data/Hora': resp[1],
-                'Anônimo': 'Sim' if resp[3] else 'Não',
-                'Nome': resp[4] or '',
-                'Email': resp[5] or ''
-            }
-            
-            answers = json.loads(resp[2])
-            for i, q in enumerate(questions):
-                row[f"Q{i+1}: {q['text'][:50]}"] = answers.get(str(i), '')
-            
-            data.append(row)
-        
-        df = pd.DataFrame(data)
-        return df.to_csv(index=False).encode('utf-8')
-
-def send_email_with_retry(to_email: str, subject: str, body: str, attachment: bytes = None, 
-                         attachment_name: str = None) -> bool:
-    """Envia email com retry exponential backoff + jitter"""
-    if not SMTP_USER or not SMTP_PASS:
-        st.warning("Configurações de SMTP não definidas. CSV salvo localmente.")
-        if attachment:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"export_{timestamp}.csv"
-            with open(filename, 'wb') as f:
-                f.write(attachment)
-            st.success(f"CSV salvo como: {filename}")
+    if not current_cmd:
         return False
     
-    for attempt in range(MAX_RETRIES):
-        try:
-            msg = MIMEMultipart()
-            msg['From'] = SMTP_USER
-            msg['To'] = to_email
-            msg['Subject'] = subject
+    # Normalização: remover espaços extras e converter para lowercase
+    user_input_clean = ' '.join(user_input.strip().lower().split())
+    expected_cmd_clean = ' '.join(current_cmd['comando'].strip().lower().split())
+    
+    return user_input_clean == expected_cmd_clean
+
+def add_to_terminal(message, msg_type="text"):
+    """Adiciona mensagem ao histórico do terminal"""
+    css_class = {
+        "prompt": "terminal-prompt",
+        "command": "terminal-command",
+        "success": "terminal-success",
+        "error": "terminal-error",
+        "text": "terminal-text",
+        "narrative": "terminal-narrative"
+    }.get(msg_type, "terminal-text")
+    
+    st.session_state.historico_terminal.append(f'<span class="{css_class}">{message}</span>')
+
+def process_command(user_input):
+    """Processa o comando digitado pelo usuário"""
+    if not user_input.strip():
+        return
+    
+    current_cmd = get_current_command()
+    
+    # Adicionar comando ao terminal
+    add_to_terminal(f"detetive@linuxgame:~$ {user_input}", "command")
+    
+    # Validar comando
+    if validate_command(user_input):
+        # SUCESSO!
+        st.session_state.comandos_completados += 1
+        st.session_state.comando_atual_index += 1
+        st.session_state.tentativas_erro = 0
+        st.session_state.mostrar_ajuda = False  # Resetar ajuda ao acertar
+        
+        # Feedback de sucesso - APENAS ELOGIO
+        add_to_terminal("✅ COMANDO CORRETO! Excelente trabalho, Detetive!", "success")
+        add_to_terminal("", "text")
+        
+        # Verificar se completou a fase
+        phase = st.session_state.phases[st.session_state.fase_atual]
+        if st.session_state.comando_atual_index >= len(phase['comandos']):
+            st.session_state.fase_atual += 1
+            st.session_state.comando_atual_index = 0
             
-            msg.attach(MIMEText(body, 'plain'))
-            
-            if attachment:
-                part = MIMEBase('application', 'octet-stream')
-                part.set_payload(attachment)
-                encoders.encode_base64(part)
-                part.add_header('Content-Disposition', 
-                              f'attachment; filename= {attachment_name or "export.csv"}')
-                msg.attach(part)
-            
-            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-                server.starttls()
-                server.login(SMTP_USER, SMTP_PASS)
-                server.send_message(msg)
-            
-            return True
-            
-        except Exception as e:
-            if attempt < MAX_RETRIES - 1:
-                # Exponential backoff com jitter
-                wait_time = (2 ** attempt) + random.uniform(0, 1)
-                time.sleep(wait_time)
+            # Verificar se completou o jogo
+            if st.session_state.fase_atual >= len(st.session_state.phases):
+                st.session_state.game_completed = True
+                add_to_terminal("🎉 PARABÉNS! VOCÊ CAPTUROU O CÁLCULUS!", "success")
+                add_to_terminal("🏆 Missão cumprida com êxito!", "success")
             else:
-                st.error(f"Falha ao enviar email após {MAX_RETRIES} tentativas: {str(e)}")
-                if attachment:
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    filename = f"export_fallback_{timestamp}.csv"
-                    with open(filename, 'wb') as f:
-                        f.write(attachment)
-                    st.warning(f"CSV salvo localmente como fallback: {filename}")
-                return False
-
-# Interface principal
-def main():
-    st.set_page_config(page_title="Pesquisa App! - por Ary Ribeiro", page_icon="📋", layout="centered")
-    inject_css()
-    
-    # Gerar session ID único
-    if 'session_id' not in st.session_state:
-        st.session_state.session_id = hashlib.md5(
-            f"{time.time()}{random.random()}".encode()
-        ).hexdigest()
-    
-    # Inicializar banco
-    init_database()
-    
-    st.title("📋 Pesquisa App!")
-    
-    # Navegação principal
-    if 'page' not in st.session_state:
-        st.session_state.page = 'home'
-    
-    if st.session_state.page == 'home':
-        show_home_page()
-    elif st.session_state.page == 'admin':
-        show_admin_page()
-    elif st.session_state.page == 'respond':
-        show_respond_page()
-
-def show_home_page():
-    """Página inicial com botões de navegação"""
-    st.markdown("#### ...bem-vindos à minha Pesquisa Anônima! 👇🏻")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        if st.button("🔑 Admin / Professor", use_container_width=True):
-            st.session_state.page = 'admin'
-            st.rerun()
-    
-    with col2:
-        if st.button("📝 Responder Pesquisa", use_container_width=True):
-            st.session_state.page = 'respond'
-            st.rerun()
-
-def show_admin_page():
-    """Página de administração"""
-    st.markdown("### Área Administrativa")
-    
-    if st.button("← Voltar"):
-        st.session_state.page = 'home'
-        st.rerun()
-    
-    # Autenticação
-    if 'admin_authenticated' not in st.session_state:
-        st.session_state.admin_authenticated = False
-    
-    if not st.session_state.admin_authenticated:
-        with st.form("login_form"):
-            password = st.text_input("Senha", type="password")
-            submitted = st.form_submit_button("Entrar")
-            
-            if submitted:
-                is_valid, is_default = verify_admin_password(password)
-                if is_valid:
-                    st.session_state.admin_authenticated = True
-                    st.session_state.is_default_password = is_default
-                    st.success("Login realizado com sucesso!")
-                    st.rerun()
-                else:
-                    st.error("Senha incorreta!")
+                add_to_terminal(f"🎊 FASE {st.session_state.fase_atual} COMPLETA!", "success")
+                add_to_terminal(f"🚀 Avançando para: {st.session_state.phases[st.session_state.fase_atual]['nome']}", "narrative")
+        
+        # Forçar atualização do input APENAS em caso de sucesso
+        st.session_state.input_key += 1
+        
     else:
-        # Verificar se precisa alterar senha padrão
-        if st.session_state.get('is_default_password', False):
-            st.warning("⚠️ Você está usando a senha padrão. Recomendamos alterá-la.")
+        # ERRO! - NÃO incrementar input_key para manter o valor no campo
+        st.session_state.tentativas_erro += 1
+        add_to_terminal("❌ Comando incorreto!", "error")
+        add_to_terminal(f"💡 Tente novamente ou clique em 'Pedir Ajuda' no painel lateral.", "error")
+        add_to_terminal("", "text")
+
+# ============================================================================
+# 7. GERAÇÃO DE CERTIFICADO
+# ============================================================================
+
+def generate_certificate(nome):
+    """Gera certificado de conclusão em formato de imagem"""
+    
+    # Criar imagem do certificado
+    width, height = 1200, 800
+    img = Image.new('RGB', (width, height), color='white')
+    draw = ImageDraw.Draw(img)
+    
+    # Tentar carregar fontes (fallback para fonte padrão)
+    try:
+        font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 48)
+        font_text = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
+        font_name = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 36)
+    except:
+        font_title = ImageFont.load_default()
+        font_text = ImageFont.load_default()
+        font_name = ImageFont.load_default()
+    
+    # Desenhar borda
+    draw.rectangle([(20, 20), (width-20, height-20)], outline='#00FF00', width=5)
+    draw.rectangle([(30, 30), (width-30, height-30)], outline='#003300', width=2)
+    
+    # CARREGAR E INSERIR LOGO.PNG NO TOPO
+    try:
+        logo = Image.open('static/logo.png')
+        # Redimensionar logo para caber no certificado
+        logo_width = 300
+        logo_ratio = logo_width / logo.size[0]
+        logo_height = int(logo.size[1] * logo_ratio)
+        logo_resized = logo.resize((logo_width, logo_height), Image.Resampling.LANCZOS)
+        # Centralizar logo
+        logo_x = (width - logo_width) // 2
+        logo_y = 50
+        img.paste(logo_resized, (logo_x, logo_y), logo_resized if logo_resized.mode == 'RGBA' else None)
+        y_start = logo_y + logo_height + 30
+    except Exception as e:
+        print(f"Erro ao carregar logo: {e}")
+        y_start = 100
+    
+    # Título
+    title = "CERTIFICADO DE CONCLUSÃO"
+    title_bbox = draw.textbbox((0, 0), title, font=font_title)
+    title_width = title_bbox[2] - title_bbox[0]
+    draw.text(((width - title_width) / 2, y_start), title, fill='#003300', font=font_title)
+    
+    # Texto principal
+    text_lines = [
+        f"Certificamos que",
+        f"{nome.upper()}",
+        f"concluiu com êxito o treinamento",
+        f"LINUX GAME - TERMINAL EDUCATIVO",
+        f"",
+        f"Carga horária estimada: 8 horas",
+        f"Data de conclusão: {datetime.now().strftime('%d/%m/%Y')}",
+        f"",
+        f"Domínio comprovado de 170 comandos Linux",
+    ]
+    
+    y_position = y_start + 70
+    for i, line in enumerate(text_lines):
+        if line == nome.upper():
+            font_current = font_name
+            color = '#00FF00'
+        elif line == "LINUX GAME - TERMINAL EDUCATIVO":
+            font_current = font_name
+            color = '#003300'
+        else:
+            font_current = font_text
+            color = '#000000'
+        
+        bbox = draw.textbbox((0, 0), line, font=font_current)
+        text_width = bbox[2] - bbox[0]
+        draw.text(((width - text_width) / 2, y_position), line, fill=color, font=font_current)
+        y_position += 50 if line == nome.upper() or line == "LINUX GAME - TERMINAL EDUCATIVO" else 35
+    
+    # CARREGAR E INSERIR ASSINATURA.PNG NO RODAPÉ
+    try:
+        assinatura = Image.open('static/assinatura.png')
+        # Redimensionar assinatura
+        assin_width = 250
+        assin_ratio = assin_width / assinatura.size[0]
+        assin_height = int(assinatura.size[1] * assin_ratio)
+        assin_resized = assinatura.resize((assin_width, assin_height), Image.Resampling.LANCZOS)
+        # Centralizar assinatura
+        assin_x = (width - assin_width) // 2
+        assin_y = height - 150
+        img.paste(assin_resized, (assin_x, assin_y), assin_resized if assin_resized.mode == 'RGBA' else None)
+    except Exception as e:
+        print(f"Erro ao carregar assinatura: {e}")
+    
+    # Rodapé
+    footer = "Emitido digitalmente via Linux Game Terminal"
+    footer_bbox = draw.textbbox((0, 0), footer, font=font_text)
+    footer_width = footer_bbox[2] - footer_bbox[0]
+    draw.text(((width - footer_width) / 2, height - 50), footer, fill='#666666', font=font_text)
+    
+    return img
+
+def get_image_download_link(img, filename):
+    """Gera link de download para a imagem"""
+    buffered = io.BytesIO()
+    img.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode()
+    href = f'<a href="data:file/png;base64,{img_str}" download="{filename}">📥 Baixar Certificado</a>'
+    return href
+
+# ============================================================================
+# 8. RENDERIZAÇÃO DA INTERFACE
+# ============================================================================
+
+def render_sidebar():
+    """Renderiza a barra lateral com informações do jogo"""
+    
+    with st.sidebar:
+        st.markdown("# 🐧 LINUX GAME")
+        st.markdown("### Terminal Educativo")
+        st.markdown("---")
+        
+        # Status do Jogador
+        st.markdown("### 🕵️ STATUS DO DETETIVE")
+        st.markdown(f"**Nome:** {st.session_state.nome_jogador}")
+        st.markdown(f"**Fase:** {st.session_state.fase_atual + 1}/17")
+        st.markdown(f"**Comandos:** {st.session_state.comandos_completados}/170")
+        
+        # Barra de Progresso
+        progress = st.session_state.comandos_completados / 170
+        st.progress(progress)
+        st.markdown(f"**{progress*100:.1f}%** completo")
+        
+        st.markdown("---")
+        
+        # Missão Atual
+        if st.session_state.fase_atual < len(st.session_state.phases):
+            phase = st.session_state.phases[st.session_state.fase_atual]
             
-            with st.expander("Alterar senha"):
-                with st.form("change_password_form"):
-                    new_pass = st.text_input("Nova senha", type="password")
-                    confirm_pass = st.text_input("Confirmar nova senha", type="password")
-                    submitted = st.form_submit_button("Alterar")
+            st.markdown("### 🎯 MISSÃO ATUAL")
+            st.markdown(f"**{phase['nome']}**")
+            
+            current_cmd = get_current_command()
+            if current_cmd:
+                # DICA (sempre visível) - PRIMEIRO
+                st.markdown("### 💡 DICA")
+                st.info(current_cmd['descricao'])
+                
+                st.markdown("")
+                
+                # BOTÃO PEDIR AJUDA
+                ajuda_clicked = st.button("🆘 PEDIR AJUDA", use_container_width=True, key="btn_ajuda")
+                
+                if ajuda_clicked:
+                    st.session_state.mostrar_ajuda = True
+                
+                st.markdown("")
+                
+                # COMANDO ESPERADO (só mostra se pediu ajuda)
+                if st.session_state.mostrar_ajuda:
+                    st.markdown("### ⚠️ RESPOSTA")
+                    st.code(current_cmd['comando'], language='bash')
+                    st.warning("⚠️ Tente memorizar este comando!")
+                else:
+                    st.markdown("### 🤔 DESAFIO")
+                    st.markdown("Leia a **dica acima** e tente lembrar qual comando Linux você deve usar.")
+                    st.markdown("💪 *Quanto menos ajuda pedir, melhor sua pontuação!*")
+            
+            st.markdown("---")
+            
+            # História da Fase
+            st.markdown("### 📜 CONTEXTO DA MISSÃO")
+            narrative = phase['narrativa'].format(nome=st.session_state.nome_jogador)
+            st.markdown(narrative)
+
+def render_terminal():
+    """Renderiza o terminal principal"""
+    
+    # Construir HTML do terminal
+    terminal_html = '<div class="terminal-container" id="terminal-scroll">'
+    
+    # Adicionar histórico
+    for line in st.session_state.historico_terminal:
+        terminal_html += f'{line}<br>'
+    
+    # Prompt atual
+    current_cmd = get_current_command()
+    if current_cmd and not st.session_state.game_completed:
+        terminal_html += '<span class="terminal-prompt">detetive@linuxgame:~$ </span>'
+    
+    terminal_html += '</div>'
+    
+    st.markdown(terminal_html, unsafe_allow_html=True)
+    
+    # Input de comando (apenas se o jogo não estiver completo)
+    if not st.session_state.game_completed:
+        # Criar um form para capturar ENTER do teclado
+        with st.form(key=f"command_form_{st.session_state.input_key}", clear_on_submit=False):
+            col1, col2 = st.columns([5, 1])
+            
+            with col1:
+                user_input = st.text_input(
+                    "Digite o comando:",
+                    key=f"command_input_{st.session_state.input_key}",
+                    label_visibility="collapsed",
+                    placeholder="Digite o comando Linux aqui e pressione ENTER...",
+                    value=""
+                )
+            
+            with col2:
+                enter_pressed = st.form_submit_button("▶ ENTER", use_container_width=True)
+            
+            # Processar comando quando o form é submetido (ENTER ou botão)
+            if enter_pressed and user_input:
+                process_command(user_input)
+                st.rerun()
+        
+        # SOLUÇÃO DEFINITIVA: HTML + JavaScript inline
+        st.components.v1.html("""
+        <script>
+        (function() {
+            // Função para executar scroll e focus
+            function executeActions() {
+                try {
+                    // Acessa o documento pai (Streamlit)
+                    const parentDoc = window.parent.document;
                     
-                    if submitted:
-                        if len(new_pass) < 8:
-                            st.error("A senha deve ter pelo menos 8 caracteres!")
-                        elif new_pass != confirm_pass:
-                            st.error("As senhas não coincidem!")
-                        else:
-                            update_admin_password(new_pass)
-                            st.session_state.is_default_password = False
-                            st.success("Senha alterada com sucesso!")
-                            st.rerun()
-        
-        # Tabs do admin
-        tab1, tab2, tab3, tab4 = st.tabs(["📊 Dashboard", "➕ Nova Pesquisa", "📥 Exportar", "🔧 Diagnóstico"])
-        
-        with tab1:
-            show_admin_dashboard()
-        
-        with tab2:
-            show_create_survey()
-        
-        with tab3:
-            show_export_section()
-        
-        with tab4:
-            show_diagnostics()
-
-def show_admin_dashboard():
-    """Dashboard administrativo"""
-    survey = get_active_survey()
-    
-    if survey:
-        st.success(f"✅ Pesquisa ativa: **{survey['title']}**")
-        
-        # Estatísticas
-        with st.session_state.db_pool.get_connection() as conn:
-            c = conn.cursor()
-            c.execute("SELECT COUNT(*) FROM responses WHERE survey_id = ?", (survey['id'],))
-            total_responses = c.fetchone()[0]
+                    // 1. SCROLL DO TERMINAL
+                    const terminal = parentDoc.getElementById('terminal-scroll');
+                    if (terminal) {
+                        terminal.scrollTop = terminal.scrollHeight;
+                    }
+                    
+                    // 2. FOCUS NO INPUT
+                    const inputs = parentDoc.querySelectorAll('input[type="text"]');
+                    if (inputs && inputs.length > 0) {
+                        // Pega o último input (o do comando)
+                        const lastInput = inputs[inputs.length - 1];
+                        if (lastInput) {
+                            lastInput.focus();
+                        }
+                    }
+                } catch(e) {
+                    console.log('Erro ao executar ações:', e);
+                }
+            }
             
-            c.execute("""
-                SELECT COUNT(*) FROM responses 
-                WHERE survey_id = ? AND is_anonymous = 1
-            """, (survey['id'],))
-            anonymous_responses = c.fetchone()[0]
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Total de Respostas", total_responses)
-        with col2:
-            st.metric("Respostas Anônimas", anonymous_responses)
-        with col3:
-            st.metric("Total de Perguntas", len(survey['questions']))
-        
-        if st.button("🛑 Encerrar Pesquisa", type="secondary"):
-            with st.session_state.db_pool.get_connection() as conn:
-                c = conn.cursor()
-                c.execute("""
-                    UPDATE surveys 
-                    SET is_active = 0, closed_at = CURRENT_TIMESTAMP 
-                    WHERE id = ?
-                """, (survey['id'],))
-                conn.commit()
-            get_active_survey.clear()
-            st.success("Pesquisa encerrada!")
-            st.rerun()
-    else:
-        st.info("Nenhuma pesquisa ativa no momento.")
+            // Executar imediatamente
+            executeActions();
+            
+            // Executar após 100ms
+            setTimeout(executeActions, 100);
+            
+            // Executar após 300ms
+            setTimeout(executeActions, 300);
+            
+            // Executar após 500ms
+            setTimeout(executeActions, 500);
+            
+            // Continuar executando a cada 200ms
+            setInterval(executeActions, 200);
+        })();
+        </script>
+        """, height=0)
 
-def show_create_survey():
-    """Interface para criar nova pesquisa"""
-    st.markdown("#### Criar Nova Pesquisa")
+def render_welcome_screen():
+    """Renderiza a tela inicial de boas-vindas"""
     
-    # Verificar se já existe pesquisa ativa
-    if get_active_survey():
-        st.warning("⚠️ Já existe uma pesquisa ativa. Encerre-a antes de criar uma nova.")
-        return
+    # Usar logo.png ao invés de ASCII art
+    try:
+        logo = Image.open('static/logo.png')
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            st.image(logo, width=400)  # 50% do tamanho - fixo em 400px
+    except Exception as e:
+        st.error(f"Erro ao carregar logo: {e}")
     
-    # Inicializar estado das perguntas
-    if 'survey_questions' not in st.session_state:
-        st.session_state.survey_questions = []
+    st.markdown("---")
     
-    # Título da pesquisa
-    title = st.text_input("Título da Pesquisa", max_chars=200)
+    col1, col2, col3 = st.columns([1, 2, 1])
     
-    # Adicionar perguntas
-    st.markdown("##### Perguntas")
-    
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        question_text = st.text_input("Texto da pergunta", key="new_question_text", max_chars=500)
     with col2:
-        question_type = st.selectbox("Tipo", 
-            ["texto_curto", "texto_longo", "multipla_escolha", "escala_1_5"],
-            key="new_question_type")
-    
-    # Opções para múltipla escolha
-    options_text = None
-    if question_type == "multipla_escolha":
-        options_text = st.text_area("Opções (uma por linha)", key="options", height=100)
-    
-    if st.button("➕ Adicionar Pergunta"):
-        if question_text:
-            if len(st.session_state.survey_questions) >= 19:  # Máximo 19 + última obrigatória = 20
-                st.error("Máximo de 19 perguntas personalizadas (+ 1 pergunta final obrigatória)")
-            else:
-                question_data = {
-                    'text': question_text.strip(),
-                    'type': question_type,
-                    'required': True
-                }
+        st.markdown("### 🕵️ BEM-VINDO, DETETIVE!")
+        st.markdown("""
+        Você é um **Detetive de Elite** convocado para uma missão urgente:
+        
+        🦹 **O vilão CÁLCULUS** hackeou os sistemas da cidade!
+        
+        Para capturá-lo, você precisará dominar **170 comandos Linux** através de
+        **17 fases progressivas** repletas de desafios e investigações.
+        
+        🎯 **Sua missão:**
+        - Aprender comandos Linux de forma progressiva
+        - Seguir as pistas deixadas pelo vilão
+        - Completar todas as fases
+        - Capturar CÁLCULUS e receber seu certificado!
+        
+        ---
+        """)
+        
+        nome = st.text_input("🕵️ Digite seu nome de Detetive:", placeholder="Ex: Detetive Silva")
+        
+        st.markdown("")
+        
+        if st.button("🚀 INICIAR MISSÃO", use_container_width=True):
+            if nome.strip():
+                st.session_state.nome_jogador = nome.strip()
+                st.session_state.game_started = True
                 
-                if question_type == "multipla_escolha" and options_text:
-                    options = [opt.strip() for opt in options_text.split('\n') if opt.strip()]
-                    if options:
-                        question_data['options'] = options
+                # Adicionar mensagem inicial ao terminal
+                add_to_terminal("=" * 80, "text")
+                add_to_terminal(f"🕵️ DETETIVE {nome.upper()} - MISSÃO INICIADA", "success")
+                add_to_terminal("=" * 80, "text")
+                add_to_terminal("", "text")
                 
-                st.session_state.survey_questions.append(question_data)
-                st.success(f"Pergunta {len(st.session_state.survey_questions)} adicionada!")
+                phase = st.session_state.phases[0]
+                narrative = phase['narrativa'].format(nome=nome)
+                for line in narrative.split('\n'):
+                    add_to_terminal(line, "narrative")
+                
+                add_to_terminal("", "text")
+                add_to_terminal("💻 Digite os comandos Linux para avançar na investigação!", "text")
+                add_to_terminal("", "text")
+                
                 st.rerun()
-    
-    # Mostrar perguntas adicionadas
-    if st.session_state.survey_questions:
-        st.markdown("##### Perguntas Adicionadas:")
-        for i, q in enumerate(st.session_state.survey_questions):
-            col1, col2 = st.columns([4, 1])
-            with col1:
-                st.text(f"{i+1}. {q['text'][:100]} ({q['type']})")
-            with col2:
-                if st.button("⌫", key=f"remove_{i}"):
-                    st.session_state.survey_questions.pop(i)
-                    st.rerun()
-        
-        # Adicionar pergunta final obrigatória
-        st.info("📝 Uma pergunta final de texto longo será adicionada automaticamente")
-        
-        # Validação e criação
-        total_questions = len(st.session_state.survey_questions) + 1  # +1 para pergunta final
-        
-        if total_questions < 2:
-            st.warning(f"Adicione pelo menos 1 pergunta (atual: {len(st.session_state.survey_questions)})")
-        else:
-            st.success(f"Total de perguntas: {total_questions} (incluindo pergunta final)")
-            
-            if st.button("🚀 Criar Pesquisa", type="primary", disabled=(not title or total_questions < 2)):
-                # Adicionar pergunta final
-                final_question = {
-                    'text': 'Comentários adicionais ou sugestões (opcional)',
-                    'type': 'texto_longo',
-                    'required': False,
-                    'is_final': True,
-                    'max_chars': 2000
-                }
-                
-                all_questions = st.session_state.survey_questions + [final_question]
-                
-                create_survey(title, all_questions)
-                st.session_state.survey_questions = []
-                st.success("✅ Pesquisa criada e ativada com sucesso!")
-                st.balloons()
-                st.rerun()
-
-def show_export_section():
-    """Seção de exportação de dados"""
-    st.markdown("#### Exportar Respostas")
-    
-    # Obter pesquisas
-    with st.session_state.db_pool.get_connection() as conn:
-        c = conn.cursor()
-        c.execute("SELECT id, title, created_at FROM surveys ORDER BY id DESC")
-        surveys = c.fetchall()
-    
-    if not surveys:
-        st.info("Nenhuma pesquisa encontrada.")
-        return
-    
-    # Selecionar pesquisa
-    survey_options = {f"{s[0]} - {s[1]} ({s[2][:10]})": s[0] for s in surveys}
-    selected = st.selectbox("Selecione a pesquisa", list(survey_options.keys()))
-    survey_id = survey_options[selected]
-    
-    # Contar respostas
-    with st.session_state.db_pool.get_connection() as conn:
-        c = conn.cursor()
-        c.execute("SELECT COUNT(*) FROM responses WHERE survey_id = ?", (survey_id,))
-        count = c.fetchone()[0]
-    
-    st.info(f"Total de respostas: {count}")
-    
-    if count > 0:
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            if st.button("📥 Baixar CSV"):
-                csv_data = export_responses_to_csv(survey_id)
-                if csv_data:
-                    st.download_button(
-                        label="💾 Download",
-                        data=csv_data,
-                        file_name=f"pesquisa_{survey_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                        mime="text/csv"
-                    )
-        
-        with col2:
-            if st.button("📧 Enviar por Email"):
-                if OWNER_EMAIL:
-                    with st.spinner("Enviando..."):
-                        csv_data = export_responses_to_csv(survey_id)
-                        if csv_data:
-                            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-                            success = send_email_with_retry(
-                                OWNER_EMAIL,
-                                f"Exportação de Pesquisa - {timestamp}",
-                                f"Segue em anexo o arquivo CSV com as respostas da pesquisa ID {survey_id}.",
-                                csv_data,
-                                f"pesquisa_{survey_id}.csv"
-                            )
-                            if success:
-                                st.success(f"Email enviado para {OWNER_EMAIL}")
-                else:
-                    st.error("Email do destinatário não configurado (OWNER_EMAIL)")
-
-def show_diagnostics():
-    """Painel de diagnóstico do sistema"""
-    st.markdown("#### Diagnóstico do Sistema")
-    
-    # Status do banco
-    st.markdown("##### 🗄️ Banco de Dados")
-    try:
-        with st.session_state.db_pool.get_connection() as conn:
-            c = conn.cursor()
-            c.execute("SELECT COUNT(*) FROM surveys")
-            total_surveys = c.fetchone()[0]
-            c.execute("SELECT COUNT(*) FROM responses")
-            total_responses = c.fetchone()[0]
-            c.execute("SELECT COUNT(*) FROM rate_limits WHERE datetime(timestamp) > datetime('now', '-1 hour')")
-            recent_limits = c.fetchone()[0]
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Total Pesquisas", total_surveys)
-        with col2:
-            st.metric("Total Respostas", total_responses)
-        with col3:
-            st.metric("Rate Limits (1h)", recent_limits)
-        
-        st.success("✅ Banco de dados operacional")
-    except Exception as e:
-        st.error(f"⌫ Erro no banco: {str(e)}")
-    
-    # Status do cache
-    st.markdown("##### 💾 Cache")
-    try:
-        # Verificar se existe método de cache stats
-        cache_info = "Cache operacional"
-        st.info(cache_info)
-    except Exception as e:
-        st.info("Cache operacional")
-    
-    # Status SMTP
-    st.markdown("##### 📧 Configuração SMTP")
-    if SMTP_USER and SMTP_PASS:
-        st.success("✅ Credenciais SMTP configuradas")
-        st.text(f"Servidor: {SMTP_SERVER}:{SMTP_PORT}")
-        st.text(f"Usuario: {SMTP_USER[:3]}...{SMTP_USER[-3:]}")
-    else:
-        st.warning("⚠️ SMTP não configurado (modo fallback ativo)")
-    
-    # Pool de conexões
-    st.markdown("##### 🔌 Pool de Conexões")
-    st.text(f"Conexões disponíveis: {len(st.session_state.db_pool.pool)}/{st.session_state.db_pool.pool_size}")
-    
-    # Limpar dados antigos
-    if st.button("🧹 Limpar rate limits antigos (> 1 dia)"):
-        with st.session_state.db_pool.get_connection() as conn:
-            c = conn.cursor()
-            c.execute("DELETE FROM rate_limits WHERE datetime(timestamp) < datetime('now', '-1 day')")
-            deleted = c.rowcount
-            conn.commit()
-        st.success(f"Removidos {deleted} registros")
-
-def show_respond_page():
-    """Página para responder pesquisa"""
-    st.markdown("### Responder Pesquisa")
-    
-    if st.button("← Voltar"):
-        st.session_state.page = 'home'
-        st.rerun()
-    
-    # Verificar rate limiting apenas no início da sessão
-    if 'rate_limit_checked' not in st.session_state:
-        if not check_rate_limit(st.session_state.session_id, "survey_start", max_requests=5):
-            st.error("⚠️ Muitas tentativas recentes. Aguarde alguns minutos.")
-            return
-        st.session_state.rate_limit_checked = True
-    
-    # Obter pesquisa ativa
-    survey = get_active_survey()
-    
-    if not survey:
-        st.warning("📋 Não há pesquisa ativa no momento.")
-        return
-    
-    st.markdown(f"#### {survey['title']}")
-    
-    # Inicializar estado
-    if 'current_question' not in st.session_state:
-        st.session_state.current_question = 0
-        st.session_state.answers = {}
-        st.session_state.is_anonymous = True
-        st.session_state.respondent_name = ""
-        st.session_state.respondent_email = ""
-    
-    questions = survey['questions']
-    total_questions = len(questions)
-    current = st.session_state.current_question
-    
-    # Barra de progresso
-    progress = ((current + 1) / total_questions) * 100
-    st.markdown(f"""
-    <div class="progress-bar">
-        <div class="progress-fill" style="width: {progress}%"></div>
-    </div>
-    <div class="question-counter">
-        Pergunta {current + 1} de {total_questions}
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Primeira tela - opção de anonimato
-    if current == 0 and 'anonimato_definido' not in st.session_state:
-        st.markdown("##### Informações do Respondente")
-        
-        is_anonymous = st.checkbox("Responder anonimamente", value=True, key="anon_check")
-        st.session_state.is_anonymous = is_anonymous
-        
-        if not is_anonymous:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.session_state.respondent_name = st.text_input("Nome (opcional)", max_chars=100)
-            with col2:
-                st.session_state.respondent_email = st.text_input("Email (opcional)", max_chars=100)
-        
-        if st.button("Começar Pesquisa", type="primary"):
-            st.session_state.anonimato_definido = True
-            st.rerun()
-        return
-    
-    # Exibir pergunta atual sem container extra
-    if current < total_questions:
-        question = questions[current]
-        
-        st.markdown(f"### {question['text']}")
-        
-        answer_key = str(current)
-        
-        # Renderizar campo de resposta baseado no tipo
-        if question['type'] == 'texto_curto':
-            answer = st.text_input("Sua resposta:", 
-                                  value=st.session_state.answers.get(answer_key, ""),
-                                  max_chars=200,
-                                  key=f"q_{current}")
-        
-        elif question['type'] == 'texto_longo':
-            max_chars = question.get('max_chars', 1000)
-            if question.get('is_final'):
-                # Pergunta final com visual especial
-                answer = st.text_area("Sua resposta (opcional):", 
-                                     value=st.session_state.answers.get(answer_key, ""),
-                                     max_chars=max_chars,
-                                     height=120,
-                                     key=f"q_{current}",
-                                     help=f"Máximo {max_chars} caracteres")
             else:
-                answer = st.text_area("Sua resposta:", 
-                                     value=st.session_state.answers.get(answer_key, ""),
-                                     max_chars=max_chars,
-                                     height=150,
-                                     key=f"q_{current}")
-        
-        elif question['type'] == 'multipla_escolha':
-            options = question.get('options', [])
-            if options:
-                current_answer = st.session_state.answers.get(answer_key, options[0])
-                answer = st.radio("Escolha uma opção:", 
-                                options,
-                                index=options.index(current_answer) if current_answer in options else 0,
-                                key=f"q_{current}")
-            else:
-                answer = ""
-        
-        elif question['type'] == 'escala_1_5':
-            current_answer = st.session_state.answers.get(answer_key, 3)
-            answer = st.slider("Avalie de 1 a 5:", 
-                             min_value=1, 
-                             max_value=5, 
-                             value=int(current_answer),
-                             key=f"q_{current}")
-        else:
-            answer = ""
-        
-        # Salvar resposta automaticamente
-        if answer is not None and (answer or question.get('is_final')):
-            st.session_state.answers[answer_key] = answer
-        
-        # Botões de navegação
+                st.error("⚠️ Por favor, digite seu nome para começar!")
+
+def render_victory_screen():
+    """Renderiza a tela de vitória e certificado"""
+    
+    # Usar logo.png na tela de vitória também
+    try:
+        logo = Image.open('static/logo.png')
         col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.image(logo, use_container_width=True)
+    except Exception as e:
+        st.error(f"Erro ao carregar logo: {e}")
+    
+    st.markdown("---")
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        st.markdown("### 🎉 PARABÉNS, DETETIVE!")
         
-        with col1:
-            if current > 0:
-                if st.button("← Anterior"):
-                    st.session_state.current_question = current - 1
-                    st.rerun()
+        st.success(f"""
+        **🦹 VOCÊ CAPTUROU O VILÃO CÁLCULUS!**
         
-        with col3:
-            if current < total_questions - 1:
-                # Botão próxima sempre ativo
-                if st.button("Próxima →", type="primary"):
-                    # Verificar se resposta obrigatória foi preenchida antes de prosseguir
-                    has_answer = st.session_state.answers.get(answer_key)
-                    is_required = question.get('required', True)
-                    
-                    if is_required and not has_answer:
-                        st.error("⚠️ Por favor, responda a pergunta antes de prosseguir.")
-                    else:
-                        st.session_state.current_question = current + 1
-                        st.rerun()
-            else:
-                # Último botão - Enviar (sempre ativo)
-                if st.button("✅ Enviar Respostas", type="primary"):
-                    # Verificar se todas as respostas obrigatórias foram preenchidas
-                    missing_required = []
-                    for i, q in enumerate(questions):
-                        if q.get('required', True) and str(i) not in st.session_state.answers:
-                            missing_required.append(i + 1)
-                    
-                    if missing_required:
-                        st.error(f"⚠️ Por favor, responda as perguntas obrigatórias: {', '.join(map(str, missing_required))}")
-                    else:
-                        with st.spinner("Salvando respostas..."):
-                            save_response(
-                                survey['id'],
-                                st.session_state.answers,
-                                st.session_state.is_anonymous,
-                                st.session_state.respondent_name if not st.session_state.is_anonymous else None,
-                                st.session_state.respondent_email if not st.session_state.is_anonymous else None
-                            )
-                        
-                        # Limpar estado
-                        for key in ['current_question', 'answers', 'anonimato_definido', 'rate_limit_checked']:
-                            if key in st.session_state:
-                                del st.session_state[key]
-                        
-                        st.success("✅ Respostas enviadas com sucesso! Obrigado por participar.")
-                        st.balloons()
-                        
-                        if st.button("🏠 Voltar ao Início"):
-                            st.session_state.page = 'home'
-                            st.rerun()
+        🏆 Missão cumprida com êxito total!
+        
+        📊 **Suas conquistas:**
+        - ✅ 170 comandos Linux dominados
+        - ✅ 17 fases concluídas
+        - ✅ Vilão capturado e sistemas restaurados
+        
+        ⏱️ **Tempo de treinamento:** 8 horas equivalentes
+        
+        🎓 **Seu certificado está pronto!**
+        """)
+        
+        st.markdown("---")
+        
+        # Gerar e exibir certificado
+        st.markdown("### 📜 SEU CERTIFICADO PROFISSIONAL")
+        
+        cert_img = generate_certificate(st.session_state.nome_jogador)
+        st.image(cert_img, use_container_width=True)
+        
+        # Botão de download
+        st.markdown(
+            get_image_download_link(
+                cert_img,
+                f"certificado_linux_game_{st.session_state.nome_jogador.replace(' ', '_')}.png"
+            ),
+            unsafe_allow_html=True
+        )
+        
+        st.markdown("---")
+        
+        # Estatísticas finais
+        st.markdown("### 📈 ESTATÍSTICAS DA MISSÃO")
+        
+        col_a, col_b, col_c = st.columns(3)
+        
+        with col_a:
+            st.metric("Comandos Aprendidos", "170")
+        
+        with col_b:
+            st.metric("Fases Completadas", "17")
+        
+        with col_c:
+            st.metric("Taxa de Sucesso", "100%")
+        
+        st.markdown("---")
+        
+        # Opção de reiniciar
+        if st.button("🔄 NOVA MISSÃO", use_container_width=True):
+            # Resetar o jogo
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+        
+        st.markdown("---")
+        
+        st.markdown("""
+        ### 🌟 PRÓXIMOS PASSOS
+        
+        Agora que você dominou o terminal Linux, continue sua jornada:
+        
+        - 🐧 **Pratique** em um sistema Linux real
+        - 📚 **Aprofunde-se** em shell scripting
+        - 🔧 **Configure** seu próprio servidor
+        - 🚀 **Explore** administração de sistemas
+        
+        **Obrigado por jogar Linux Game!** 🎮
+        """)
+
+# ============================================================================
+# 9. FUNÇÃO PRINCIPAL
+# ============================================================================
+
+def main():
+    """Função principal da aplicação"""
+    
+    # Injetar CSS customizado
+    inject_custom_css()
+    
+    # Inicializar session state
+    init_session_state()
+    
+    # Verificar estado do jogo e renderizar tela apropriada
+    if not st.session_state.game_started:
+        # TELA INICIAL
+        render_welcome_screen()
+    
+    elif st.session_state.game_completed:
+        # TELA DE VITÓRIA
+        render_victory_screen()
+    
+    else:
+        # JOGO EM ANDAMENTO
+        render_sidebar()
+        render_terminal()
+        
+        # Easter egg - comandos especiais
+        if st.session_state.comandos_completados == 85:  # Metade do jogo
+            st.balloons()
+
+# ============================================================================
+# 10. EXECUÇÃO
+# ============================================================================
 
 if __name__ == "__main__":
     main()
-
-st.markdown("""
-<style>
-    .main {
-        background-color: #ffffff;
-        color: #333333;
-    }
-    .block-container {
-        padding-top: 1rem;
-        padding-bottom: 0rem;
-    }
-    /* Esconde completamente todos os elementos da barra padrão do Streamlit */
-    header {display: none !important;}
-    footer {display: none !important;}
-    #MainMenu {display: none !important;}
-    /* Remove qualquer espaço em branco adicional */
-    div[data-testid="stAppViewBlockContainer"] {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-    div[data-testid="stVerticalBlock"] {
-        gap: 0 !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-    /* Remove quaisquer margens extras */
-    .element-container {
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-st.markdown("---")
-st.markdown("""
-<div style="text-align: center;">
-    <h4>Seu web app de pesquisa e feedback, com anonimato garantido</h4>
-    Por 📋<strong>Ary Ribeiro</strong>: <a href="mailto:aryribeiro@gmail.com">aryribeiro@gmail.com</a><br>
-    <em>Obs.: testado apenas em computador.</em>
-</div>
-""", unsafe_allow_html=True)
