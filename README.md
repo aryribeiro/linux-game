@@ -1,4 +1,4 @@
-# 🐧 Linux Game - Terminal Educativo
+# 🐧 Linux Game
 
 ![Linux Game](static/logo.png)
 
@@ -162,5 +162,6 @@ Para dúvidas, sugestões ou feedback:
 - Email: aryribeiro@gmail.com
 
 ---
+
 
 **🐧 Divirta-se aprendendo Linux! 🕵️**
