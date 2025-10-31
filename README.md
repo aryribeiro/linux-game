@@ -101,7 +101,7 @@ Ao completar todas as 170 comandos, você receberá um **certificado profissiona
 - Logo oficial do Linux Game
 - Seu nome em destaque
 - Data de conclusão
-- Carga horária equivalente (8 horas)
+- Carga horária equivalente (4 horas)
 - Assinatura digital
 - Download imediato
 
@@ -164,5 +164,6 @@ Para dúvidas, sugestões ou feedback:
 
 
 **🐧 Divirta-se aprendendo Linux! 🕵️**
+
 
 
