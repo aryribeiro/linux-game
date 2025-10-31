@@ -10,7 +10,7 @@ import base64
 # ============================================================================
 
 st.set_page_config(
-    page_title="Linux Game - Terminal Educativo",
+    page_title="Linux Game | por Ary Ribeiro",
     page_icon="🐧",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -206,6 +206,10 @@ def load_commands():
 def create_phases(commands):
     """Cria 17 fases temáticas com narrativa"""
     
+    # Garantir que temos exatamente 170 comandos divididos em 17 fases
+    total_commands = len(commands)
+    commands_per_phase = 10
+    
     phases = [
         {
             "nome": "Primeiros Passos no Terminal",
@@ -399,18 +403,24 @@ def process_command(user_input):
         add_to_terminal("✅ COMANDO CORRETO! Excelente trabalho, Detetive!", "success")
         add_to_terminal("", "text")
         
-        # Verificar se completou a fase
+        # VERIFICAR SE COMPLETOU TODOS OS 170 COMANDOS
+        if st.session_state.comandos_completados >= 170:
+            st.session_state.game_completed = True
+            add_to_terminal("", "text")
+            add_to_terminal("🎉🎉🎉 PARABÉNS! VOCÊ CAPTUROU O CÁLCULUS! 🎉🎉🎉", "success")
+            add_to_terminal("🏆 Missão cumprida com êxito total!", "success")
+            add_to_terminal("🎓 Seu certificado está pronto!", "success")
+            add_to_terminal("", "text")
+            return  # Sair da função
+        
+        # Verificar se completou a fase atual
         phase = st.session_state.phases[st.session_state.fase_atual]
         if st.session_state.comando_atual_index >= len(phase['comandos']):
             st.session_state.fase_atual += 1
             st.session_state.comando_atual_index = 0
             
-            # Verificar se completou o jogo
-            if st.session_state.fase_atual >= len(st.session_state.phases):
-                st.session_state.game_completed = True
-                add_to_terminal("🎉 PARABÉNS! VOCÊ CAPTUROU O CÁLCULUS!", "success")
-                add_to_terminal("🏆 Missão cumprida com êxito!", "success")
-            else:
+            # Mensagem de fase completa (se não for a última)
+            if st.session_state.fase_atual < len(st.session_state.phases):
                 add_to_terminal(f"🎊 FASE {st.session_state.fase_atual} COMPLETA!", "success")
                 add_to_terminal(f"🚀 Avançando para: {st.session_state.phases[st.session_state.fase_atual]['nome']}", "narrative")
         
@@ -475,15 +485,15 @@ def generate_certificate(nome):
     
     # Texto principal
     text_lines = [
-        f"Certificamos que",
+        f"Certifico que:",
         f"{nome.upper()}",
-        f"concluiu com êxito o treinamento",
-        f"LINUX GAME - TERMINAL EDUCATIVO",
+        f"concluiu com êxito o treinamento em ambiente gamificado",
+        f"LINUX GAME | https://linux-game.streamlit.app/",
         f"",
-        f"Carga horária estimada: 8 horas",
+        f"Carga horária estimada: 4 horas",
         f"Data de conclusão: {datetime.now().strftime('%d/%m/%Y')}",
         f"",
-        f"Domínio comprovado de 170 comandos Linux",
+        f"Domínio de 170 comandos Linux",
     ]
     
     y_position = y_start + 70
@@ -491,7 +501,7 @@ def generate_certificate(nome):
         if line == nome.upper():
             font_current = font_name
             color = '#00FF00'
-        elif line == "LINUX GAME - TERMINAL EDUCATIVO":
+        elif line == "LINUX GAME":
             font_current = font_name
             color = '#003300'
         else:
@@ -501,7 +511,7 @@ def generate_certificate(nome):
         bbox = draw.textbbox((0, 0), line, font=font_current)
         text_width = bbox[2] - bbox[0]
         draw.text(((width - text_width) / 2, y_position), line, fill=color, font=font_current)
-        y_position += 50 if line == nome.upper() or line == "LINUX GAME - TERMINAL EDUCATIVO" else 35
+        y_position += 50 if line == nome.upper() or line == "LINUX GAME" else 35
     
     # CARREGAR E INSERIR ASSINATURA.PNG NO RODAPÉ
     try:
@@ -519,7 +529,7 @@ def generate_certificate(nome):
         print(f"Erro ao carregar assinatura: {e}")
     
     # Rodapé
-    footer = "Emitido digitalmente via Linux Game Terminal"
+    footer = "."
     footer_bbox = draw.textbbox((0, 0), footer, font=font_text)
     footer_width = footer_bbox[2] - footer_bbox[0]
     draw.text(((width - footer_width) / 2, height - 50), footer, fill='#666666', font=font_text)
@@ -531,7 +541,7 @@ def get_image_download_link(img, filename):
     buffered = io.BytesIO()
     img.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
-    href = f'<a href="data:file/png;base64,{img_str}" download="{filename}">📥 Baixar Certificado</a>'
+    href = f'<a href="data:file/png;base64,{img_str}" download="{filename}">📥 BAIXAR CERTIFICADO</a>'
     return href
 
 # ============================================================================
@@ -542,12 +552,8 @@ def render_sidebar():
     """Renderiza a barra lateral com informações do jogo"""
     
     with st.sidebar:
-        st.markdown("# 🐧 LINUX GAME")
-        st.markdown("### Terminal Educativo")
-        st.markdown("---")
-        
         # Status do Jogador
-        st.markdown("### 🕵️ STATUS DO DETETIVE")
+        st.markdown("#### 🕵️ Status do Detetive:")
         st.markdown(f"**Nome:** {st.session_state.nome_jogador}")
         st.markdown(f"**Fase:** {st.session_state.fase_atual + 1}/17")
         st.markdown(f"**Comandos:** {st.session_state.comandos_completados}/170")
@@ -563,19 +569,19 @@ def render_sidebar():
         if st.session_state.fase_atual < len(st.session_state.phases):
             phase = st.session_state.phases[st.session_state.fase_atual]
             
-            st.markdown("### 🎯 MISSÃO ATUAL")
+            st.markdown("#### 🎯 Missão Atual:")
             st.markdown(f"**{phase['nome']}**")
             
             current_cmd = get_current_command()
             if current_cmd:
                 # DICA (sempre visível) - PRIMEIRO
-                st.markdown("### 💡 DICA")
+                st.markdown("#### 💡 Dica da IA:")
                 st.info(current_cmd['descricao'])
                 
                 st.markdown("")
                 
                 # BOTÃO PEDIR AJUDA
-                ajuda_clicked = st.button("🆘 PEDIR AJUDA", use_container_width=True, key="btn_ajuda")
+                ajuda_clicked = st.button("🆘 Pedir Ajuda a IA", use_container_width=True, key="btn_ajuda")
                 
                 if ajuda_clicked:
                     st.session_state.mostrar_ajuda = True
@@ -584,18 +590,18 @@ def render_sidebar():
                 
                 # COMANDO ESPERADO (só mostra se pediu ajuda)
                 if st.session_state.mostrar_ajuda:
-                    st.markdown("### ⚠️ RESPOSTA")
+                    st.markdown("#### ⚠️ Resposta:")
                     st.code(current_cmd['comando'], language='bash')
                     st.warning("⚠️ Tente memorizar este comando!")
                 else:
-                    st.markdown("### 🤔 DESAFIO")
+                    st.markdown("#### 🤔 Desafio:")
                     st.markdown("Leia a **dica acima** e tente lembrar qual comando Linux você deve usar.")
-                    st.markdown("💪 *Quanto menos ajuda pedir, melhor sua pontuação!*")
+                    st.markdown("😎 *Se não pedir ajuda, é sinal que aprendeu*")
             
             st.markdown("---")
             
             # História da Fase
-            st.markdown("### 📜 CONTEXTO DA MISSÃO")
+            st.markdown("#### 📜 Contexto da Missão:")
             narrative = phase['narrativa'].format(nome=st.session_state.nome_jogador)
             st.markdown(narrative)
 
@@ -708,7 +714,7 @@ def render_welcome_screen():
     with col2:
         st.markdown("### 🕵️ BEM-VINDO, DETETIVE!")
         st.markdown("""
-        Você é um **Detetive de Elite** convocado para uma missão urgente:
+        Você é um **Detetive** convocado para uma missão urgente:
         
         🦹 **O vilão CÁLCULUS** hackeou os sistemas da cidade!
         
@@ -781,7 +787,7 @@ def render_victory_screen():
         - ✅ 17 fases concluídas
         - ✅ Vilão capturado e sistemas restaurados
         
-        ⏱️ **Tempo de treinamento:** 8 horas equivalentes
+        ⏱️ **Tempo de treinamento:** 4 horas equivalentes
         
         🎓 **Seu certificado está pronto!**
         """)
@@ -880,3 +886,43 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+st.markdown("""
+<style>
+    .main {
+        background-color: #ffffff;
+        color: #333333;
+    }
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 0rem;
+    }
+    /* Esconde completamente todos os elementos da barra padrão do Streamlit */
+    header {display: none !important;}
+    footer {display: none !important;}
+    #MainMenu {display: none !important;}
+    /* Remove qualquer espaço em branco adicional */
+    div[data-testid="stAppViewBlockContainer"] {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    div[data-testid="stVerticalBlock"] {
+        gap: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    /* Remove quaisquer margens extras */
+    .element-container {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div style="text-align: center;">
+    <h4>LINUX GAME🐧</h4>
+    🧠 Memorize comandos Linux em ambiente gamificado - Por <strong>Ary Ribeiro</strong>: <a href="mailto:aryribeiro@gmail.com">aryribeiro@gmail.com</a><br>
+    <em>Obs.: foi testado apenas em computador - Emita seu certificado de 4 horas no final</em>
+</div>
+""", unsafe_allow_html=True)
