@@ -5,7 +5,7 @@ Obs.: caso o app esteja no modo "sleeping" (dormindo) ao entrar, basta clicar no
 
 **Linux Game** é um jogo educativo interativo desenvolvido em Python com Streamlit que ensina comandos Linux através de uma narrativa policial envolvente. 
 
-Você assume o papel de um **🕵️ Detetive de Elite** em uma missão para capturar o vilão **🦹 Cálculus**, que hackeou os sistemas da cidade. Para derrotá-lo, você precisará dominar **170 comandos Linux** através de **17 fases progressivas**.
+Você assume o papel de um **🕵️ Detetive** em uma missão para capturar o vilão **🦹 Cálculus**, que hackeou os sistemas da cidade. Para derrotá-lo, você precisará dominar **170 comandos Linux** através de **17 fases progressivas**.
 
 ## 🎯 Características
 
@@ -164,4 +164,5 @@ Para dúvidas, sugestões ou feedback:
 
 
 **🐧 Divirta-se aprendendo Linux! 🕵️**
+
 
