@@ -1,5 +1,4 @@
-# 🐧 Linux Game
-
+Obs.: caso o app esteja no modo "sleeping" (dormindo) ao entrar, basta clicar no botão que estará disponível e aguardar, para ativar o mesmo.
 ![Linux Game](static/logo.png)
 
 ## 📋 Sobre o Projeto
@@ -165,3 +164,4 @@ Para dúvidas, sugestões ou feedback:
 
 
 **🐧 Divirta-se aprendendo Linux! 🕵️**
+
