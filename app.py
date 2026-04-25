@@ -459,12 +459,46 @@ def generate_certificate(nome):
     img = Image.new('RGB', (width, height), color='white')
     draw = ImageDraw.Draw(img)
     
-    # Tentar carregar fontes (fallback para fonte padrão)
-    try:
-        font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 48)
-        font_text = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
-        font_name = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 36)
-    except:
+    # Tentar carregar fontes com suporte a Windows, Linux e Streamlit Cloud
+    font_title = None
+    font_text = None
+    font_name = None
+    
+    # Lista de fontes para tentar (ordem de prioridade)
+    font_paths = [
+        # Linux (Streamlit Cloud, Ubuntu, Debian)
+        ("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+        ("/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"),
+        # Windows
+        ("C:/Windows/Fonts/arialbd.ttf", "C:/Windows/Fonts/arial.ttf"),
+        ("C:/Windows/Fonts/calibrib.ttf", "C:/Windows/Fonts/calibri.ttf"),
+        # Alternativas Linux
+        ("/usr/share/fonts/truetype/freefont/FreeSansBold.ttf", "/usr/share/fonts/truetype/freefont/FreeSans.ttf"),
+    ]
+    
+    for bold_path, regular_path in font_paths:
+        try:
+            font_title = ImageFont.truetype(bold_path, 48)
+            font_text = ImageFont.truetype(regular_path, 24)
+            font_name = ImageFont.truetype(bold_path, 36)
+            break
+        except:
+            continue
+    
+    # Se nenhuma fonte foi carregada, tentar fallbacks genéricos
+    if font_title is None:
+        fallback_fonts = ["DejaVuSans-Bold.ttf", "DejaVuSans.ttf", "arial.ttf", "Arial.ttf"]
+        for font_file in fallback_fonts:
+            try:
+                font_title = ImageFont.truetype(font_file, 48)
+                font_text = ImageFont.truetype(font_file.replace("Bold", "").replace("-", ""), 24)
+                font_name = ImageFont.truetype(font_file, 36)
+                break
+            except:
+                continue
+    
+    # Último recurso: fonte bitmap padrão (não recomendado, mas funcional)
+    if font_title is None:
         font_title = ImageFont.load_default()
         font_text = ImageFont.load_default()
         font_name = ImageFont.load_default()
@@ -529,14 +563,14 @@ def generate_certificate(nome):
     # CARREGAR E INSERIR ASSINATURA.PNG NO RODAPÉ
     try:
         assinatura = Image.open('static/assinatura.png')
-        # Redimensionar assinatura
-        assin_width = 250
+        # Redimensionar assinatura - aumentada para 500px de largura
+        assin_width = 500
         assin_ratio = assin_width / assinatura.size[0]
         assin_height = int(assinatura.size[1] * assin_ratio)
         assin_resized = assinatura.resize((assin_width, assin_height), Image.Resampling.LANCZOS)
-        # Centralizar assinatura
+        # Centralizar assinatura próxima ao rodapé
         assin_x = (width - assin_width) // 2
-        assin_y = height - 150
+        assin_y = height - assin_height - 40  # Posiciona 40px acima do rodapé (mais próxima)
         img.paste(assin_resized, (assin_x, assin_y), assin_resized if assin_resized.mode == 'RGBA' else None)
     except Exception as e:
         print(f"Erro ao carregar assinatura: {e}")
@@ -792,6 +826,9 @@ def render_welcome_screen():
 def render_victory_screen():
     """Renderiza a tela de vitória e certificado"""
     
+    # Celebração com balões ao completar o jogo
+    st.balloons()
+    
     # Usar logo.png na tela de vitória também
     try:
         logo = Image.open('static/logo.png')
@@ -906,10 +943,6 @@ def main():
         # JOGO EM ANDAMENTO
         render_sidebar()
         render_terminal()
-        
-        # Easter egg - comandos especiais
-        if st.session_state.comandos_completados == 85:  # Metade do jogo
-            st.balloons()
 
 # ============================================================================
 # 10. EXECUÇÃO
