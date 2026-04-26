@@ -1,172 +1,682 @@
 [
-  {"comando": "ls", "descricao": "Lista todos os arquivos e diretórios do local atual. É um dos comandos mais usados no Linux. Mostra nomes, tamanhos e permissões. Exemplo: digite 'ls' para ver o que tem na pasta."},
-  {"comando": "cd", "descricao": "Muda de um diretório para outro, como trocar de pasta. É essencial para navegar pelo sistema. Use 'cd ..' para voltar uma pasta. Exemplo: 'cd Documentos' entra na pasta Documentos."},
-  {"comando": "pwd", "descricao": "Mostra o caminho completo do diretório onde você está agora. Útil quando você se perde navegando. O nome significa 'print working directory'. Exemplo: pode mostrar '/home/usuario/Documentos'."},
-  {"comando": "mkdir", "descricao": "Cria um novo diretório (pasta) vazio. Você escolhe o nome da pasta. É como criar uma nova pasta no Windows. Exemplo: 'mkdir Fotos' cria uma pasta chamada Fotos."},
-  {"comando": "rmdir", "descricao": "Remove um diretório que está vazio. Se tiver arquivos dentro, não funciona. Use 'rm' para remover com conteúdo. É mais seguro que 'rm' pois evita apagar coisas por acidente."},
-  {"comando": "touch", "descricao": "Cria um arquivo vazio novo ou atualiza a data de um arquivo existente. Muito usado para criar arquivos de teste. Não precisa de editor. Exemplo: 'touch teste.txt' cria um arquivo vazio."},
-  {"comando": "rm", "descricao": "⚠️ CUIDADO! Remove arquivos permanentemente, sem lixeira. Não tem como desfazer. Use com atenção. Exemplo: 'rm arquivo.txt' apaga o arquivo para sempre."},
-  {"comando": "cp", "descricao": "Copia arquivos ou diretórios de um lugar para outro. O original fica intacto. Pode copiar com novo nome. Exemplo: 'cp foto.jpg backup.jpg' cria uma cópia."},
-  {"comando": "mv", "descricao": "Move arquivos para outro lugar ou renomeia. Diferente de copiar, o original some. Serve para organizar arquivos. Exemplo: 'mv antigo.txt novo.txt' renomeia o arquivo."},
-  {"comando": "cat", "descricao": "Exibe todo o conteúdo de um arquivo na tela de uma vez. Bom para arquivos pequenos. Para arquivos grandes use 'less'. Exemplo: 'cat receita.txt' mostra o texto completo."},
-  {"comando": "more", "descricao": "Exibe arquivo grande página por página, pausando a cada tela. Aperte espaço para continuar. Mais simples que 'less'. Útil para ler textos longos sem rolar demais."},
-  {"comando": "less", "descricao": "Visualiza arquivos com navegação avançada. Pode voltar, buscar texto e é mais poderoso que 'more'. Use setas para navegar. Aperte 'q' para sair."},
-  {"comando": "head", "descricao": "Mostra apenas as primeiras 10 linhas de um arquivo. Útil para ver o início de logs ou textos grandes. Pode mudar a quantidade de linhas. Exemplo: vê o cabeçalho de um CSV."},
-  {"comando": "tail", "descricao": "Mostra as últimas 10 linhas de um arquivo. Muito usado para ver logs recentes. Com '-f' acompanha em tempo real. Exemplo: 'tail erro.log' vê últimos erros."},
-  {"comando": "echo", "descricao": "Exibe uma mensagem ou texto na tela. Serve para imprimir variáveis ou criar arquivos simples. Muito usado em scripts. Exemplo: 'echo Olá Mundo' mostra a mensagem."},
-  {"comando": "printf", "descricao": "Formata e exibe texto de forma mais controlada que 'echo'. Permite cores, tabulações e formatação especial. Usado em scripts avançados. Exemplo: pode alinhar colunas perfeitamente."},
-  {"comando": "grep", "descricao": "Busca palavras ou padrões dentro de arquivos. É como o 'Ctrl+F' do terminal. Muito poderoso para encontrar informações. Exemplo: 'grep erro log.txt' acha todas as linhas com 'erro'."},
-  {"comando": "find", "descricao": "Procura arquivos e diretórios no sistema todo. Busca por nome, tamanho, data ou tipo. Mais completo que 'locate'. Exemplo: 'find . -name foto.jpg' procura o arquivo."},
-  {"comando": "locate", "descricao": "Encontra arquivos rapidamente usando um banco de dados. Mais rápido que 'find' mas precisa atualizar o banco. Busca em todo o sistema. Exemplo: 'locate documento.pdf' acha o arquivo."},
-  {"comando": "which", "descricao": "Mostra o caminho completo de onde um comando está instalado. Útil para saber qual versão está sendo usada. Exemplo: 'which python' mostra '/usr/bin/python'."},
-  {"comando": "whereis", "descricao": "Localiza o executável, código-fonte e manual de um comando. Mais completo que 'which'. Mostra vários locais relacionados. Exemplo: encontra onde está o programa e sua documentação."},
-  {"comando": "man", "descricao": "Exibe o manual completo de qualquer comando Linux. É a documentação oficial. Use setas para navegar e 'q' para sair. Exemplo: 'man ls' mostra tudo sobre o comando ls."},
-  {"comando": "wc", "descricao": "Conta linhas, palavras e caracteres de um arquivo. Útil para estatísticas de texto. Pode contar só linhas com '-l'. Exemplo: 'wc arquivo.txt' mostra 100 linhas, 500 palavras."},
-  {"comando": "sort", "descricao": "Ordena linhas de texto em ordem alfabética ou numérica. Pode ordenar ao contrário com '-r'. Muito usado com outros comandos. Exemplo: organiza uma lista de nomes."},
-  {"comando": "uniq", "descricao": "Remove linhas duplicadas consecutivas de um arquivo. Geralmente usado após 'sort'. Pode contar repetições com '-c'. Exemplo: limpa lista de emails repetidos."},
-  {"comando": "cut", "descricao": "Extrai colunas específicas de um arquivo de texto. Útil para arquivos CSV ou dados tabulares. Escolhe quais campos mostrar. Exemplo: pega só a primeira coluna de uma planilha."},
-  {"comando": "paste", "descricao": "Junta linhas de dois ou mais arquivos lado a lado. Como colar colunas no Excel. Cria arquivo com dados combinados. Exemplo: une lista de nomes com lista de telefones."},
-  {"comando": "join", "descricao": "Une linhas de dois arquivos que têm um campo em comum. Como um JOIN de banco de dados. Arquivos precisam estar ordenados. Exemplo: combina dados de clientes com pedidos."},
-  {"comando": "split", "descricao": "Divide um arquivo grande em vários arquivos menores. Útil para enviar arquivos grandes por email. Pode dividir por linhas ou tamanho. Exemplo: quebra arquivo de 1GB em partes de 100MB."},
-  {"comando": "tr", "descricao": "Traduz, substitui ou deleta caracteres de um texto. Pode converter maiúsculas em minúsculas. Muito usado em pipes. Exemplo: 'tr a-z A-Z' converte tudo para maiúsculo."},
-  {"comando": "sed", "descricao": "Editor de texto poderoso que trabalha em stream. Faz substituições, deleções e inserções. Usa expressões regulares. Exemplo: 'sed s/antigo/novo/g' troca todas as palavras."},
-  {"comando": "awk", "descricao": "Linguagem de programação para processar e analisar texto. Muito poderosa para manipular dados tabulares. Pode fazer cálculos e filtros. Exemplo: soma valores de uma coluna."},
-  {"comando": "tee", "descricao": "Lê da entrada padrão e escreve tanto na tela quanto em arquivo. Como um 'T' que divide o fluxo. Útil para salvar e ver ao mesmo tempo. Exemplo: salva log enquanto mostra na tela."},
-  {"comando": "rev", "descricao": "Inverte cada linha de texto caractere por caractere. Escreve de trás para frente. Útil para efeitos ou testes. Exemplo: 'Linux' vira 'xuniL'."},
-  {"comando": "tac", "descricao": "Exibe arquivo de trás para frente, última linha primeiro. É o 'cat' ao contrário. Útil para ver logs mais recentes primeiro. Exemplo: mostra últimas entradas no topo."},
-  {"comando": "nl", "descricao": "Numera as linhas de um arquivo automaticamente. Adiciona números na frente de cada linha. Útil para referências em código. Exemplo: transforma texto simples em lista numerada."},
-  {"comando": "fold", "descricao": "Quebra linhas muito longas em linhas menores. Define largura máxima da linha. Útil para formatar texto para impressão. Exemplo: ajusta texto para caber em 80 colunas."},
-  {"comando": "expand", "descricao": "Converte caracteres de tabulação (TAB) em espaços. Padroniza formatação de código. Evita problemas com editores diferentes. Exemplo: transforma tabs em 4 espaços."},
-  {"comando": "unexpand", "descricao": "Faz o oposto de 'expand', converte espaços em tabs. Reduz tamanho de arquivos de código. Mantém indentação consistente. Exemplo: compacta espaços repetidos em tabs."},
-  {"comando": "diff", "descricao": "Compara dois arquivos linha por linha e mostra as diferenças. Essencial para ver mudanças em código. Mostra o que foi adicionado ou removido. Exemplo: compara versão antiga com nova."},
-  {"comando": "cmp", "descricao": "Compara dois arquivos byte por byte, mais rápido que 'diff'. Usado para arquivos binários. Para na primeira diferença. Exemplo: verifica se dois PDFs são idênticos."},
-  {"comando": "comm", "descricao": "Compara dois arquivos ordenados e mostra linhas únicas e comuns. Arquivos devem estar ordenados antes. Mostra 3 colunas de resultado. Exemplo: encontra diferenças entre duas listas."},
-  {"comando": "file", "descricao": "Identifica o tipo de um arquivo analisando seu conteúdo. Não depende da extensão. Detecta imagens, textos, executáveis. Exemplo: 'file foto' pode mostrar 'JPEG image'."},
-  {"comando": "stat", "descricao": "Mostra informações detalhadas sobre um arquivo. Exibe tamanho, permissões, datas de criação e modificação. Mais completo que 'ls'. Exemplo: vê quando arquivo foi acessado pela última vez."},
-  {"comando": "ln", "descricao": "Cria links (atalhos) entre arquivos. Pode ser link simbólico ou hard link. Economiza espaço em disco. Exemplo: cria atalho de um arquivo em outro lugar."},
-  {"comando": "chmod", "descricao": "⚠️ Altera permissões de leitura, escrita e execução de arquivos. Controla quem pode acessar o arquivo. Usa números (755) ou letras (rwx). Exemplo: 'chmod 755 script.sh' permite executar o script."},
-  {"comando": "chown", "descricao": "⚠️ Muda o dono (proprietário) de um arquivo ou diretório. Requer permissões de administrador. Útil ao transferir arquivos entre usuários. Exemplo: 'chown joao arquivo.txt' dá o arquivo para João."},
-  {"comando": "chgrp", "descricao": "Muda o grupo proprietário de um arquivo. Permite compartilhar arquivos com equipe. Trabalha junto com permissões. Exemplo: 'chgrp desenvolvedores projeto/' compartilha pasta com grupo."},
-  {"comando": "umask", "descricao": "Define as permissões padrão para novos arquivos criados. Funciona como uma máscara. Afeta todos os arquivos novos. Exemplo: 'umask 022' cria arquivos com permissões seguras."},
-  {"comando": "ps", "descricao": "Lista todos os processos (programas) em execução no momento. Mostra ID do processo, uso de CPU e memória. Essencial para monitoramento. Exemplo: vê quais programas estão rodando."},
-  {"comando": "top", "descricao": "Monitora processos em tempo real, atualizando a cada segundo. Mostra uso de CPU, memória e processos ativos. Aperte 'q' para sair. Exemplo: vê qual programa está travando o computador."},
-  {"comando": "htop", "descricao": "Versão melhorada e colorida do 'top' com interface interativa. Mais fácil de usar e entender. Permite matar processos com F9. Exemplo: monitora sistema de forma visual e amigável."},
-  {"comando": "kill", "descricao": "⚠️ Encerra (mata) um processo pelo seu ID. Use com cuidado para não fechar programas importantes. Pode forçar com '-9'. Exemplo: 'kill 1234' fecha o processo número 1234."},
-  {"comando": "killall", "descricao": "⚠️ Mata todos os processos com um nome específico de uma vez. Mais perigoso que 'kill'. Fecha todas as instâncias. Exemplo: 'killall firefox' fecha todas as janelas do Firefox."},
-  {"comando": "pgrep", "descricao": "Busca processos pelo nome e mostra seus IDs. Útil para encontrar ID antes de usar 'kill'. Mais rápido que 'ps'. Exemplo: 'pgrep chrome' mostra IDs de todos os processos do Chrome."},
-  {"comando": "pkill", "descricao": "⚠️ Mata processos buscando por nome, similar ao 'killall'. Mais flexível que 'kill'. Pode usar padrões de busca. Exemplo: 'pkill fire' fecha Firefox, Firebird, etc."},
-  {"comando": "bg", "descricao": "Envia um processo pausado para rodar em segundo plano. Libera o terminal para outros comandos. Útil para programas demorados. Exemplo: continua download em background."},
-  {"comando": "fg", "descricao": "Traz um processo de segundo plano de volta para primeiro plano. Oposto de 'bg'. Retoma controle do programa. Exemplo: volta para editor que estava em background."},
-  {"comando": "jobs", "descricao": "Lista todos os trabalhos (processos) em execução no terminal atual. Mostra quais estão em background ou pausados. Cada um tem um número. Exemplo: vê downloads rodando em segundo plano."},
-  {"comando": "nice", "descricao": "Executa um comando com prioridade ajustada de CPU. Valores de -20 (alta) a 19 (baixa). Evita que um programa trave o sistema. Exemplo: roda backup com baixa prioridade."},
-  {"comando": "renice", "descricao": "Altera a prioridade de um processo que já está rodando. Pode aumentar ou diminuir prioridade. Requer permissões. Exemplo: dá mais CPU para renderização de vídeo."},
-  {"comando": "nohup", "descricao": "Executa comando imune a desconexão do terminal. Processo continua mesmo se você sair. Útil para tarefas longas em servidores. Exemplo: mantém script rodando após logout."},
-  {"comando": "sleep", "descricao": "Pausa a execução por um tempo determinado. Usado em scripts para criar delays. Aceita segundos, minutos ou horas. Exemplo: 'sleep 5' espera 5 segundos antes de continuar."},
-  {"comando": "watch", "descricao": "Executa um comando repetidamente a cada 2 segundos. Monitora mudanças em tempo real. Aperte Ctrl+C para parar. Exemplo: 'watch df' monitora espaço em disco continuamente."},
-  {"comando": "time", "descricao": "Mede quanto tempo um comando leva para executar. Mostra tempo real, de CPU e de sistema. Útil para otimização. Exemplo: 'time ls' mostra quanto tempo levou para listar arquivos."},
-  {"comando": "timeout", "descricao": "Limita o tempo máximo de execução de um comando. Se passar do tempo, cancela automaticamente. Evita processos travados. Exemplo: 'timeout 10 ping google.com' para após 10 segundos."},
-  {"comando": "date", "descricao": "Exibe a data e hora atual do sistema. Pode formatar de várias formas. Também serve para ajustar data (como root). Exemplo: mostra 'Sáb 25 Abr 2026 14:30:00'."},
-  {"comando": "cal", "descricao": "Mostra um calendário do mês atual no terminal. Pode mostrar ano inteiro ou mês específico. Destaca o dia atual. Exemplo: 'cal 2026' mostra calendário do ano todo."},
-  {"comando": "uptime", "descricao": "Mostra há quanto tempo o sistema está ligado sem reiniciar. Também exibe carga média do sistema. Útil para servidores. Exemplo: pode mostrar '15 dias, 3 horas'."},
-  {"comando": "w", "descricao": "Mostra quem está logado no sistema e o que está fazendo. Exibe usuários, terminais e comandos em execução. Mais completo que 'who'. Exemplo: vê se alguém está usando o servidor."},
-  {"comando": "who", "descricao": "Lista todos os usuários conectados ao sistema no momento. Mostra nome, terminal e hora de login. Mais simples que 'w'. Exemplo: verifica quantas pessoas estão logadas."},
-  {"comando": "whoami", "descricao": "Mostra o nome do usuário que você está usando agora. Útil quando você troca de usuário com 'su'. Comando simples e direto. Exemplo: pode mostrar 'joao' ou 'root'."},
-  {"comando": "id", "descricao": "Exibe IDs numéricos do usuário e grupos. Mostra UID (user ID) e GID (group ID). Útil para permissões. Exemplo: mostra 'uid=1000(joao) gid=1000(joao)'."},
-  {"comando": "users", "descricao": "Lista nomes de todos os usuários logados, um ao lado do outro. Versão simplificada de 'who'. Mostra só os nomes. Exemplo: pode mostrar 'joao maria pedro'."},
-  {"comando": "finger", "descricao": "Mostra informações detalhadas sobre um usuário. Exibe nome completo, diretório home e último login. Nem sempre está instalado. Exemplo: vê detalhes do usuário 'joao'."},
-  {"comando": "last", "descricao": "Mostra histórico dos últimos logins no sistema. Lista usuário, terminal, IP e duração da sessão. Útil para auditoria. Exemplo: vê quem acessou o servidor ontem."},
-  {"comando": "logname", "descricao": "Exibe o nome de login original, mesmo após trocar de usuário. Diferente de 'whoami' que mostra usuário atual. Útil em scripts. Exemplo: sempre mostra quem fez login primeiro."},
-  {"comando": "groups", "descricao": "Lista todos os grupos aos quais o usuário pertence. Grupos controlam permissões de acesso. Cada usuário pode ter vários grupos. Exemplo: pode mostrar 'joao sudo docker'."},
-  {"comando": "su", "descricao": "⚠️ Troca para outro usuário, geralmente root (administrador). Pede senha do usuário destino. Use com cuidado como root. Exemplo: 'su root' vira administrador."},
-  {"comando": "sudo", "descricao": "⚠️ Executa um único comando como administrador (root). Mais seguro que 'su'. Pede sua própria senha. Exemplo: 'sudo apt install' instala programa com permissão de admin."},
-  {"comando": "passwd", "descricao": "Altera a senha do usuário atual ou de outro usuário. Pede senha antiga primeiro. Senha não aparece ao digitar. Exemplo: 'passwd' muda sua própria senha."},
-  {"comando": "useradd", "descricao": "⚠️ Cria um novo usuário no sistema. Requer permissões de root. Define nome, home e shell. Exemplo: 'useradd maria' cria usuária Maria."},
-  {"comando": "userdel", "descricao": "⚠️ Remove um usuário do sistema permanentemente. Pode apagar ou manter arquivos do usuário. Use com cuidado. Exemplo: 'userdel joao' remove usuário João."},
-  {"comando": "usermod", "descricao": "⚠️ Modifica configurações de um usuário existente. Pode mudar nome, grupos, shell ou home. Requer root. Exemplo: adiciona usuário a um grupo."},
-  {"comando": "groupadd", "descricao": "⚠️ Cria um novo grupo de usuários no sistema. Grupos organizam permissões. Requer root. Exemplo: 'groupadd desenvolvedores' cria grupo para equipe."},
-  {"comando": "groupdel", "descricao": "⚠️ Remove um grupo de usuários do sistema. Não remove os usuários, só o grupo. Requer permissões de root. Exemplo: 'groupdel antigos' apaga o grupo."},
-  {"comando": "groupmod", "descricao": "⚠️ Modifica configurações de um grupo existente. Pode mudar nome ou ID do grupo. Requer root. Exemplo: renomeia grupo ou muda seu número de identificação."},
-  {"comando": "df", "descricao": "Mostra espaço livre e usado em todos os discos montados. Exibe em bytes, use '-h' para formato humano. Essencial para monitorar disco. Exemplo: vê se HD está cheio."},
-  {"comando": "du", "descricao": "Calcula quanto espaço cada diretório está usando. Pode ser recursivo. Use '-h' para tamanhos legíveis. Exemplo: 'du -h Documentos' mostra tamanho da pasta."},
-  {"comando": "free", "descricao": "Exibe quantidade de memória RAM livre e usada no sistema. Mostra também memória swap. Use '-h' para formato humano. Exemplo: vê se precisa de mais RAM."},
-  {"comando": "mount", "descricao": "⚠️ Monta (conecta) um sistema de arquivos ou dispositivo. Necessário para acessar pendrives, HDs externos. Requer root. Exemplo: monta pendrive em /mnt/usb."},
-  {"comando": "umount", "descricao": "⚠️ Desmonta um sistema de arquivos montado. Sempre desmonte antes de remover pendrive. Requer root. Exemplo: 'umount /mnt/usb' libera pendrive para remoção segura."},
-  {"comando": "fdisk", "descricao": "⚠️ PERIGO! Gerencia partições de disco. Pode criar, deletar e modificar partições. Uso incorreto pode perder dados. Requer root. Exemplo: cria nova partição no HD."},
-  {"comando": "mkfs", "descricao": "⚠️ PERIGO! Cria (formata) um sistema de arquivos novo. Apaga todos os dados da partição. Use com extremo cuidado. Exemplo: 'mkfs.ext4' formata em ext4."},
-  {"comando": "fsck", "descricao": "⚠️ Verifica e repara erros em sistema de arquivos. Deve ser usado com partição desmontada. Pode corrigir problemas de disco. Exemplo: conserta erros após desligamento incorreto."},
-  {"comando": "dd", "descricao": "⚠️ PERIGO! Copia e converte arquivos em baixo nível. Pode clonar discos inteiros. Uso incorreto pode destruir dados. Exemplo: cria backup de HD ou grava ISO em pendrive."},
-  {"comando": "tar", "descricao": "Empacota vários arquivos em um único arquivo. Não compacta por padrão. Muito usado para backup. Exemplo: 'tar -cf backup.tar pasta/' empacota a pasta."},
-  {"comando": "gzip", "descricao": "Compacta arquivos para economizar espaço. Cria arquivo .gz. Reduz tamanho significativamente. Exemplo: 'gzip arquivo.txt' cria arquivo.txt.gz menor."},
-  {"comando": "gunzip", "descricao": "Descompacta arquivos .gz criados pelo gzip. Restaura arquivo original. Remove o .gz após descompactar. Exemplo: 'gunzip arquivo.gz' volta ao arquivo normal."},
-  {"comando": "bzip2", "descricao": "Compacta arquivos com melhor taxa que gzip. Cria arquivo .bz2. Mais lento mas compacta mais. Exemplo: 'bzip2 video.mp4' reduz bastante o tamanho."},
-  {"comando": "bunzip2", "descricao": "Descompacta arquivos .bz2 criados pelo bzip2. Restaura arquivo original. Remove o .bz2. Exemplo: 'bunzip2 arquivo.bz2' descompacta o arquivo."},
-  {"comando": "zip", "descricao": "Cria arquivos compactados no formato .zip. Compatível com Windows. Pode compactar várias pastas. Exemplo: 'zip -r backup.zip pasta/' compacta tudo."},
-  {"comando": "unzip", "descricao": "Extrai arquivos de um arquivo .zip. Compatível com zips do Windows. Pode listar conteúdo antes. Exemplo: 'unzip arquivo.zip' extrai todos os arquivos."},
-  {"comando": "rar", "descricao": "Compacta arquivos no formato .rar. Boa compressão mas não vem instalado por padrão. Formato proprietário. Exemplo: 'rar a backup.rar pasta/' cria arquivo rar."},
-  {"comando": "unrar", "descricao": "Extrai arquivos de um arquivo .rar. Precisa instalar separadamente. Lê arquivos rar do Windows. Exemplo: 'unrar x arquivo.rar' extrai o conteúdo."},
-  {"comando": "xz", "descricao": "Compacta arquivos com a melhor taxa de compressão. Cria arquivo .xz. Mais lento mas menor resultado. Exemplo: 'xz arquivo.tar' cria arquivo.tar.xz bem compacto."},
-  {"comando": "unxz", "descricao": "Descompacta arquivos .xz. Restaura arquivo original. Remove o .xz após descompactar. Exemplo: 'unxz arquivo.xz' volta ao arquivo normal."},
-  {"comando": "ping", "descricao": "Testa se um computador ou site está acessível na rede. Envia pacotes e mede tempo de resposta. Aperte Ctrl+C para parar. Exemplo: 'ping google.com' testa conexão com Google."},
-  {"comando": "ifconfig", "descricao": "⚠️ Configura e exibe informações de interfaces de rede. Mostra IP, máscara e MAC address. Sendo substituído por 'ip'. Exemplo: vê seu endereço IP local."},
-  {"comando": "ip", "descricao": "Gerencia configurações de rede e rotas. Substituto moderno do 'ifconfig'. Mais poderoso e completo. Exemplo: 'ip addr' mostra todos os IPs do computador."},
-  {"comando": "netstat", "descricao": "Exibe estatísticas e conexões de rede ativas. Mostra portas abertas e conexões estabelecidas. Útil para diagnóstico. Exemplo: vê quais programas estão usando internet."},
-  {"comando": "ss", "descricao": "Mostra informações de sockets de rede. Substituto moderno e mais rápido do 'netstat'. Exibe conexões ativas. Exemplo: 'ss -tuln' lista portas abertas."},
-  {"comando": "route", "descricao": "Exibe e modifica a tabela de roteamento de rede. Mostra por onde os pacotes vão. Sendo substituído por 'ip route'. Exemplo: vê o gateway padrão."},
-  {"comando": "traceroute", "descricao": "Rastreia o caminho que pacotes fazem até um destino. Mostra todos os roteadores no meio do caminho. Útil para diagnóstico. Exemplo: vê por onde passa conexão até site."},
-  {"comando": "nslookup", "descricao": "Consulta servidores DNS para resolver nomes de domínio. Converte nome em IP e vice-versa. Ferramenta de diagnóstico. Exemplo: 'nslookup google.com' mostra IP do Google."},
-  {"comando": "dig", "descricao": "Ferramenta avançada de consulta DNS. Mais completa que 'nslookup'. Mostra detalhes técnicos de DNS. Exemplo: 'dig google.com' mostra registros DNS completos."},
-  {"comando": "host", "descricao": "Resolve nomes de domínio para endereços IP de forma simples. Mais direto que 'dig'. Também faz busca reversa. Exemplo: 'host google.com' mostra IP rapidamente."},
-  {"comando": "whois", "descricao": "Busca informações sobre proprietário de um domínio. Mostra dados de registro, contato e servidores. Útil para pesquisa. Exemplo: vê quem é dono de um site."},
-  {"comando": "wget", "descricao": "Baixa arquivos da internet via HTTP, HTTPS ou FTP. Pode continuar downloads interrompidos. Funciona em background. Exemplo: 'wget url' baixa arquivo do link."},
-  {"comando": "curl", "descricao": "Transfere dados de ou para URLs. Mais versátil que 'wget'. Suporta muitos protocolos. Exemplo: 'curl url' mostra conteúdo de página web."},
-  {"comando": "ssh", "descricao": "Conecta remotamente a outro computador de forma segura e criptografada. Permite controlar servidor à distância. Padrão para administração remota. Exemplo: 'ssh usuario@servidor' acessa outro PC."},
-  {"comando": "scp", "descricao": "Copia arquivos entre computadores via SSH de forma segura. Funciona como 'cp' mas pela rede. Criptografa durante transferência. Exemplo: copia arquivo para servidor remoto."},
-  {"comando": "sftp", "descricao": "Transfere arquivos via SSH com interface interativa. Mais seguro que FTP tradicional. Permite navegar em pastas remotas. Exemplo: envia arquivos para servidor com segurança."},
-  {"comando": "rsync", "descricao": "Sincroniza arquivos e diretórios entre locais. Copia apenas diferenças, economizando tempo. Muito usado para backup. Exemplo: mantém backup atualizado automaticamente."},
-  {"comando": "ftp", "descricao": "Cliente FTP para transferir arquivos. Protocolo antigo e inseguro. Prefira SFTP quando possível. Exemplo: conecta a servidor FTP para upload/download."},
-  {"comando": "nc", "descricao": "Netcat - ferramenta versátil para ler e escrever dados em rede. Pode criar servidores simples ou testar portas. Muito usada em segurança. Exemplo: testa se porta está aberta."},
-  {"comando": "telnet", "descricao": "⚠️ Conecta a servidores remotos via protocolo Telnet. Inseguro, não criptografa dados. Use SSH no lugar. Exemplo: testa se serviço está respondendo em uma porta."},
-  {"comando": "hostname", "descricao": "Exibe ou define o nome do computador na rede. Identifica a máquina. Pode ser temporário ou permanente. Exemplo: mostra 'meu-computador' ou 'servidor-web'."},
-  {"comando": "uname", "descricao": "Mostra informações sobre o sistema operacional. Exibe nome, versão do kernel e arquitetura. Use '-a' para tudo. Exemplo: mostra 'Linux 5.15.0 x86_64'."},
-  {"comando": "arch", "descricao": "Exibe a arquitetura do processador. Mostra se é 32 ou 64 bits. Útil para instalar software correto. Exemplo: mostra 'x86_64' para 64 bits."},
-  {"comando": "lscpu", "descricao": "Lista informações detalhadas sobre a CPU. Mostra núcleos, threads, velocidade e cache. Útil para diagnóstico. Exemplo: vê quantos núcleos tem o processador."},
-  {"comando": "lsblk", "descricao": "Lista todos os dispositivos de bloco (discos e partições). Mostra estrutura em árvore. Exibe tamanhos e pontos de montagem. Exemplo: vê todos os HDs e pendrives."},
-  {"comando": "lspci", "descricao": "Lista todos os dispositivos PCI conectados. Mostra placas de vídeo, rede, som. Útil para identificar hardware. Exemplo: vê qual placa de vídeo está instalada."},
-  {"comando": "lsusb", "descricao": "Lista todos os dispositivos USB conectados. Mostra mouse, teclado, pendrives. Exibe IDs dos dispositivos. Exemplo: vê se pendrive foi reconhecido."},
-  {"comando": "lsof", "descricao": "Lista todos os arquivos abertos no sistema. Mostra qual processo está usando cada arquivo. Útil para diagnóstico. Exemplo: vê quem está usando um arquivo."},
-  {"comando": "dmesg", "descricao": "Exibe mensagens do kernel do sistema. Mostra logs de hardware e drivers. Útil para diagnóstico de problemas. Exemplo: vê erros de hardware ao iniciar."},
-  {"comando": "journalctl", "descricao": "Visualiza logs do sistema (systemd). Mostra histórico de eventos e erros. Pode filtrar por serviço ou data. Exemplo: vê logs de um serviço específico."},
-  {"comando": "systemctl", "descricao": "⚠️ Gerencia serviços do sistema (systemd). Inicia, para, reinicia e verifica status. Requer root para mudanças. Exemplo: 'systemctl status apache2' vê se servidor web está rodando."},
-  {"comando": "service", "descricao": "⚠️ Controla serviços do sistema (método antigo). Inicia e para serviços. Sendo substituído por 'systemctl'. Exemplo: 'service nginx restart' reinicia servidor web."},
-  {"comando": "shutdown", "descricao": "⚠️ Desliga o sistema de forma segura. Pode agendar horário. Fecha programas corretamente. Exemplo: 'shutdown -h now' desliga imediatamente."},
-  {"comando": "reboot", "descricao": "⚠️ Reinicia o computador de forma segura. Fecha tudo antes de reiniciar. Requer permissões de root. Exemplo: reinicia após instalar atualizações."},
-  {"comando": "halt", "descricao": "⚠️ Para o sistema completamente. Mais abrupto que 'shutdown'. Desliga sem avisos. Exemplo: para o sistema rapidamente."},
-  {"comando": "poweroff", "descricao": "⚠️ Desliga o computador completamente. Corta a energia após fechar sistema. Similar a 'shutdown -h now'. Exemplo: desliga e pode desconectar da tomada."},
-  {"comando": "init", "descricao": "⚠️ Muda o nível de execução do sistema. Controla modo de operação. 0=desligar, 6=reiniciar. Comando de baixo nível. Exemplo: 'init 6' reinicia o sistema."},
-  {"comando": "logout", "descricao": "Sai da sessão atual do usuário. Fecha o terminal ou sessão SSH. Não desliga o computador. Exemplo: encerra sua sessão mas sistema continua rodando."},
-  {"comando": "exit", "descricao": "Fecha o terminal ou shell atual. Encerra a sessão. Se for último terminal, pode deslogar. Exemplo: fecha janela do terminal."},
-  {"comando": "clear", "descricao": "Limpa toda a tela do terminal. Remove texto antigo da visualização. Não apaga histórico. Exemplo: deixa terminal limpo para trabalhar."},
-  {"comando": "reset", "descricao": "Reinicia o terminal completamente. Mais forte que 'clear'. Corrige problemas de exibição. Exemplo: conserta terminal com caracteres estranhos."},
-  {"comando": "history", "descricao": "Mostra histórico de todos os comandos digitados. Pode repetir comandos antigos. Numerado para referência. Exemplo: vê os últimos 100 comandos usados."},
-  {"comando": "alias", "descricao": "Cria atalhos personalizados para comandos. Economiza digitação. Pode combinar vários comandos. Exemplo: 'alias ll=ls -la' cria atalho 'll'."},
-  {"comando": "unalias", "descricao": "Remove um atalho (alias) criado anteriormente. Volta comando ao normal. Não afeta comandos reais. Exemplo: 'unalias ll' remove o atalho."},
-  {"comando": "export", "descricao": "Define variáveis de ambiente disponíveis para programas. Configura PATH, LANG, etc. Persiste na sessão. Exemplo: 'export PATH=/novo/caminho' adiciona ao PATH."},
-  {"comando": "env", "descricao": "Exibe todas as variáveis de ambiente do sistema. Mostra configurações globais. Pode executar comando com ambiente modificado. Exemplo: vê todas as variáveis definidas."},
-  {"comando": "printenv", "descricao": "Imprime variáveis de ambiente, similar ao 'env'. Pode mostrar variável específica. Mais simples que 'env'. Exemplo: 'printenv PATH' mostra só o PATH."},
-  {"comando": "set", "descricao": "Define opções do shell e variáveis. Mostra todas as variáveis se usado sozinho. Controla comportamento do bash. Exemplo: ativa ou desativa opções do terminal."},
-  {"comando": "unset", "descricao": "Remove uma variável de ambiente ou do shell. Apaga a definição. Oposto de 'export' ou 'set'. Exemplo: 'unset VARIAVEL' remove a variável."},
-  {"comando": "source", "descricao": "Executa comandos de um arquivo script no shell atual. Carrega configurações. Também pode usar ponto '.'. Exemplo: 'source .bashrc' recarrega configurações."},
-  {"comando": "bash", "descricao": "Inicia um novo shell Bash. Pode executar scripts. Shell mais popular do Linux. Exemplo: 'bash script.sh' executa um script."},
-  {"comando": "sh", "descricao": "Inicia shell padrão POSIX. Mais simples que bash. Compatível com scripts antigos. Exemplo: executa scripts básicos de shell."},
-  {"comando": "crontab", "descricao": "Agenda tarefas para executar automaticamente em horários definidos. Cria rotinas diárias, semanais ou mensais. Muito usado para backups. Exemplo: roda script todo dia às 2h da manhã."},
-  {"comando": "at", "descricao": "Executa um comando uma única vez em horário futuro específico. Diferente de cron que repete. Útil para tarefas pontuais. Exemplo: desliga computador às 23h."},
-  {"comando": "yes", "descricao": "Repete uma string infinitamente até ser interrompido. Usado em scripts para responder 'sim' automaticamente. Aperte Ctrl+C para parar. Exemplo: 'yes | comando' responde sim para tudo."},
-  {"comando": "seq", "descricao": "Gera sequência de números. Útil em loops de scripts. Define início, fim e incremento. Exemplo: 'seq 1 10' gera números de 1 a 10."},
-  {"comando": "basename", "descricao": "Extrai apenas o nome do arquivo de um caminho completo. Remove o diretório. Útil em scripts. Exemplo: '/home/user/foto.jpg' vira 'foto.jpg'."},
-  {"comando": "dirname", "descricao": "Extrai apenas o caminho do diretório, removendo o nome do arquivo. Oposto de 'basename'. Útil em scripts. Exemplo: '/home/user/foto.jpg' vira '/home/user'."},
-  {"comando": "expr", "descricao": "Avalia expressões matemáticas e lógicas. Faz cálculos simples no terminal. Usado em scripts antigos. Exemplo: 'expr 5 + 3' resulta em 8."},
-  {"comando": "bc", "descricao": "Calculadora avançada de linha de comando. Suporta decimais e funções matemáticas. Mais poderosa que 'expr'. Exemplo: pode calcular raiz quadrada e potências."},
-  {"comando": "factor", "descricao": "Fatora um número em seus fatores primos. Mostra divisores. Útil para matemática. Exemplo: 'factor 12' mostra '2 2 3'."},
-  {"comando": "true", "descricao": "Comando que sempre retorna sucesso (código 0). Usado em scripts e testes. Não faz nada visível. Exemplo: usado em loops infinitos 'while true'."},
-  {"comando": "false", "descricao": "Comando que sempre retorna falha (código 1). Oposto de 'true'. Usado em scripts e testes. Exemplo: testa comportamento de erro em scripts."}
+  {
+    "comando": "ls",
+    "descricao": "Lista todos os arquivos e diretórios do local atual. É um dos comandos mais usados no Linux. Mostra nomes, tamanhos e permissões. Exemplo: digite para ver o que tem na pasta."
+  },
+  {
+    "comando": "cd",
+    "descricao": "Muda de um diretório para outro, como trocar de pasta. É essencial para navegar pelo sistema..' para voltar uma pasta."
+  },
+  {
+    "comando": "pwd",
+    "descricao": "Mostra o caminho completo do diretório onde você está agora. Útil quando você se perde navegando. O nome significa 'print working directory'. Exemplo: pode mostrar '/home/usuario/Documentos'."
+  },
+  {
+    "comando": "mkdir",
+    "descricao": "Cria um novo diretório (pasta) vazio. Você escolhe o nome da pasta. É como criar uma nova pasta no Windows."
+  },
+  {
+    "comando": "rmdir",
+    "descricao": "Remove um diretório que está vazio. Se tiver arquivos dentro, não funciona. Use 'rm' para remover com conteúdo. É mais seguro que 'rm' pois evita apagar coisas por acidente."
+  },
+  {
+    "comando": "touch",
+    "descricao": "Cria um arquivo vazio novo ou atualiza a data de um arquivo existente. Muito usado para criar arquivos de teste. Não precisa de editor. txt' cria um arquivo vazio."
+  },
+  {
+    "comando": "rm",
+    "descricao": "⚠️ CUIDADO! Remove arquivos permanentemente, sem lixeira. Não tem como desfazer. Use com atenção. txt' apaga o arquivo para sempre."
+  },
+  {
+    "comando": "cp",
+    "descricao": "Copia arquivos ou diretórios de um lugar para outro. O original fica intacto. Pode copiar com novo nome. jpg backup.jpg' cria uma cópia."
+  },
+  {
+    "comando": "mv",
+    "descricao": "Move arquivos para outro lugar ou renomeia. Diferente de copiar, o original some. Serve para organizar arquivos. txt novo.txt' renomeia o arquivo."
+  },
+  {
+    "comando": "cat",
+    "descricao": "Exibe todo o conteúdo de um arquivo na tela de uma vez. Bom para arquivos pequenos. Para arquivos grandes use 'less'. txt' mostra o texto completo."
+  },
+  {
+    "comando": "more",
+    "descricao": "Exibe arquivo grande página por página, pausando a cada tela. Aperte espaço para continuar. Mais simples que 'less'. Útil para ler textos longos sem rolar demais."
+  },
+  {
+    "comando": "less",
+    "descricao": "Visualiza arquivos com navegação avançada. Pode voltar, buscar texto e é mais poderoso que 'more'. Use setas para navegar. Aperte 'q' para sair."
+  },
+  {
+    "comando": "head",
+    "descricao": "Mostra apenas as primeiras 10 linhas de um arquivo. Útil para ver o início de logs ou textos grandes. Pode mudar a quantidade de linhas. Exemplo: vê o cabeçalho de um CSV."
+  },
+  {
+    "comando": "tail",
+    "descricao": "Mostra as últimas 10 linhas de um arquivo. Muito usado para ver logs recentes. Com '-f' acompanha em tempo real. log' vê últimos erros."
+  },
+  {
+    "comando": "echo",
+    "descricao": "Exibe uma mensagem ou texto na tela. Serve para imprimir variáveis ou criar arquivos simples. Muito usado em scripts."
+  },
+  {
+    "comando": "printf",
+    "descricao": "Formata e exibe texto de forma mais controlada que 'echo'. Permite cores, tabulações e formatação especial. Usado em scripts avançados. Exemplo: pode alinhar colunas perfeitamente."
+  },
+  {
+    "comando": "grep",
+    "descricao": "Busca palavras ou padrões dentro de arquivos. É como o 'Ctrl+F' do terminal. Muito poderoso para encontrar informações. txt' acha todas as linhas com 'erro'."
+  },
+  {
+    "comando": "find",
+    "descricao": "Procura arquivos e diretórios no sistema todo. Busca por nome, tamanho, data ou tipo. Mais completo que 'locate'. -name foto.jpg' procura o arquivo."
+  },
+  {
+    "comando": "locate",
+    "descricao": "Encontra arquivos rapidamente usando um banco de dados. Mais rápido que 'find' mas precisa atualizar o banco. Busca em todo o sistema. pdf' acha o arquivo."
+  },
+  {
+    "comando": "which",
+    "descricao": "Mostra o caminho completo de onde um comando está instalado. Útil para saber qual versão está sendo usada."
+  },
+  {
+    "comando": "whereis",
+    "descricao": "Localiza o executável, código-fonte e manual de um comando. Mais completo que 'which'. Mostra vários locais relacionados. Exemplo: encontra onde está o programa e sua documentação."
+  },
+  {
+    "comando": "man",
+    "descricao": "Exibe o manual completo de qualquer comando Linux. É a documentação oficial. Use setas para navegar e 'q' para sair."
+  },
+  {
+    "comando": "wc",
+    "descricao": "Conta linhas, palavras e caracteres de um arquivo. Útil para estatísticas de texto. Pode contar só linhas com '-l'. txt' mostra 100 linhas, 500 palavras."
+  },
+  {
+    "comando": "sort",
+    "descricao": "Ordena linhas de texto em ordem alfabética ou numérica. Pode ordenar ao contrário com '-r'. Muito usado com outros comandos. Exemplo: organiza uma lista de nomes."
+  },
+  {
+    "comando": "uniq",
+    "descricao": "Remove linhas duplicadas consecutivas de um arquivo. Geralmente usado após 'sort'. Pode contar repetições com '-c'. Exemplo: limpa lista de emails repetidos."
+  },
+  {
+    "comando": "cut",
+    "descricao": "Extrai colunas específicas de um arquivo de texto. Útil para arquivos CSV ou dados tabulares. Escolhe quais campos mostrar. Exemplo: pega só a primeira coluna de uma planilha."
+  },
+  {
+    "comando": "paste",
+    "descricao": "Junta linhas de dois ou mais arquivos lado a lado. Como colar colunas no Excel. Cria arquivo com dados combinados. Exemplo: une lista de nomes com lista de telefones."
+  },
+  {
+    "comando": "join",
+    "descricao": "Une linhas de dois arquivos que têm um campo em comum. Como um JOIN de banco de dados. Arquivos precisam estar ordenados. Exemplo: combina dados de clientes com pedidos."
+  },
+  {
+    "comando": "split",
+    "descricao": "Divide um arquivo grande em vários arquivos menores. Útil para enviar arquivos grandes por email. Pode dividir por linhas ou tamanho. Exemplo: quebra arquivo de 1GB em partes de 100MB."
+  },
+  {
+    "comando": "tr",
+    "descricao": "Traduz, substitui ou deleta caracteres de um texto. Pode converter maiúsculas em minúsculas. Muito usado em pipes."
+  },
+  {
+    "comando": "sed",
+    "descricao": "Editor de texto poderoso que trabalha em stream. Faz substituições, deleções e inserções. Usa expressões regulares."
+  },
+  {
+    "comando": "awk",
+    "descricao": "Linguagem de programação para processar e analisar texto. Muito poderosa para manipular dados tabulares. Pode fazer cálculos e filtros. Exemplo: soma valores de uma coluna."
+  },
+  {
+    "comando": "tee",
+    "descricao": "Lê da entrada padrão e escreve tanto na tela quanto em arquivo. Como um 'T' que divide o fluxo. Útil para salvar e ver ao mesmo tempo. Exemplo: salva log enquanto mostra na tela."
+  },
+  {
+    "comando": "rev",
+    "descricao": "Inverte cada linha de texto caractere por caractere. Escreve de trás para frente. Útil para efeitos ou testes. Exemplo: 'Linux' vira 'xuniL'."
+  },
+  {
+    "comando": "tac",
+    "descricao": "Exibe arquivo de trás para frente, última linha primeiro. É o 'cat' ao contrário. Útil para ver logs mais recentes primeiro. Exemplo: mostra últimas entradas no topo."
+  },
+  {
+    "comando": "nl",
+    "descricao": "Numera as linhas de um arquivo automaticamente. Adiciona números na frente de cada linha. Útil para referências em código. Exemplo: transforma texto simples em lista numerada."
+  },
+  {
+    "comando": "fold",
+    "descricao": "Quebra linhas muito longas em linhas menores. Define largura máxima da linha. Útil para formatar texto para impressão. Exemplo: ajusta texto para caber em 80 colunas."
+  },
+  {
+    "comando": "expand",
+    "descricao": "Converte caracteres de tabulação (TAB) em espaços. Padroniza formatação de código. Evita problemas com editores diferentes. Exemplo: transforma tabs em 4 espaços."
+  },
+  {
+    "comando": "unexpand",
+    "descricao": "Faz o oposto de 'expand', converte espaços em tabs. Reduz tamanho de arquivos de código. Mantém indentação consistente. Exemplo: compacta espaços repetidos em tabs."
+  },
+  {
+    "comando": "diff",
+    "descricao": "Compara dois arquivos linha por linha e mostra as diferenças. Essencial para ver mudanças em código. Mostra o que foi adicionado ou removido. Exemplo: compara versão antiga com nova."
+  },
+  {
+    "comando": "cmp",
+    "descricao": "Compara dois arquivos byte por byte, mais rápido que 'diff'. Usado para arquivos binários. Para na primeira diferença. Exemplo: verifica se dois PDFs são idênticos."
+  },
+  {
+    "comando": "comm",
+    "descricao": "Compara dois arquivos ordenados e mostra linhas únicas e comuns. Arquivos devem estar ordenados antes. Mostra 3 colunas de resultado. Exemplo: encontra diferenças entre duas listas."
+  },
+  {
+    "comando": "file",
+    "descricao": "Identifica o tipo de um arquivo analisando seu conteúdo. Não depende da extensão. Detecta imagens, textos, executáveis."
+  },
+  {
+    "comando": "stat",
+    "descricao": "Mostra informações detalhadas sobre um arquivo. Exibe tamanho, permissões, datas de criação e modificação. Mais completo que 'ls'. Exemplo: vê quando arquivo foi acessado pela última vez."
+  },
+  {
+    "comando": "ln",
+    "descricao": "Cria links (atalhos) entre arquivos. Pode ser link simbólico ou hard link. Economiza espaço em disco. Exemplo: cria atalho de um arquivo em outro lugar."
+  },
+  {
+    "comando": "chmod",
+    "descricao": "⚠️ Altera permissões de leitura, escrita e execução de arquivos. Controla quem pode acessar o arquivo. Usa números (755) ou letras (rwx). sh' permite executar o script."
+  },
+  {
+    "comando": "chown",
+    "descricao": "⚠️ Muda o dono (proprietário) de um arquivo ou diretório. Requer permissões de administrador. Útil ao transferir arquivos entre usuários. txt' dá o arquivo para João."
+  },
+  {
+    "comando": "chgrp",
+    "descricao": "Muda o grupo proprietário de um arquivo. Permite compartilhar arquivos com equipe. Trabalha junto com permissões."
+  },
+  {
+    "comando": "umask",
+    "descricao": "Define as permissões padrão para novos arquivos criados. Funciona como uma máscara. Afeta todos os arquivos novos."
+  },
+  {
+    "comando": "ps",
+    "descricao": "Lista todos os processos (programas) em execução no momento. Mostra ID do processo, uso de CPU e memória. Essencial para monitoramento. Exemplo: vê quais programas estão rodando."
+  },
+  {
+    "comando": "top",
+    "descricao": "Monitora processos em tempo real, atualizando a cada segundo. Mostra uso de CPU, memória e processos ativos. Aperte 'q' para sair. Exemplo: vê qual programa está travando o computador."
+  },
+  {
+    "comando": "htop",
+    "descricao": "Versão melhorada e colorida do 'top' com interface interativa. Mais fácil de usar e entender. Permite matar processos com F9. Exemplo: monitora sistema de forma visual e amigável."
+  },
+  {
+    "comando": "kill",
+    "descricao": "⚠️ Encerra (mata) um processo pelo seu ID. Use com cuidado para não fechar programas importantes. Pode forçar com '-9'."
+  },
+  {
+    "comando": "killall",
+    "descricao": "⚠️ Mata todos os processos com um nome específico de uma vez. Mais perigoso que 'kill'. Fecha todas as instâncias."
+  },
+  {
+    "comando": "pgrep",
+    "descricao": "Busca processos pelo nome e mostra seus IDs. Útil para encontrar ID antes de usar 'kill'. Mais rápido que 'ps'."
+  },
+  {
+    "comando": "pkill",
+    "descricao": "⚠️ Mata processos buscando por nome, similar ao 'killall'. Mais flexível que 'kill'. Pode usar padrões de busca."
+  },
+  {
+    "comando": "bg",
+    "descricao": "Envia um processo pausado para rodar em segundo plano. Libera o terminal para outros comandos. Útil para programas demorados. Exemplo: continua download em background."
+  },
+  {
+    "comando": "fg",
+    "descricao": "Traz um processo de segundo plano de volta para primeiro plano. Oposto de 'bg'. Retoma controle do programa. Exemplo: volta para editor que estava em background."
+  },
+  {
+    "comando": "jobs",
+    "descricao": "Lista todos os trabalhos (processos) em execução no terminal atual. Mostra quais estão em background ou pausados. Cada um tem um número. Exemplo: vê downloads rodando em segundo plano."
+  },
+  {
+    "comando": "nice",
+    "descricao": "Executa um comando com prioridade ajustada de CPU. Valores de -20 (alta) a 19 (baixa). Evita que um programa trave o sistema. Exemplo: roda backup com baixa prioridade."
+  },
+  {
+    "comando": "renice",
+    "descricao": "Altera a prioridade de um processo que já está rodando. Pode aumentar ou diminuir prioridade. Requer permissões. Exemplo: dá mais CPU para renderização de vídeo."
+  },
+  {
+    "comando": "nohup",
+    "descricao": "Executa comando imune a desconexão do terminal. Processo continua mesmo se você sair. Útil para tarefas longas em servidores. Exemplo: mantém script rodando após logout."
+  },
+  {
+    "comando": "sleep",
+    "descricao": "Pausa a execução por um tempo determinado. Usado em scripts para criar delays. Aceita segundos, minutos ou horas."
+  },
+  {
+    "comando": "watch",
+    "descricao": "Executa um comando repetidamente a cada 2 segundos. Monitora mudanças em tempo real. Aperte Ctrl+C para parar."
+  },
+  {
+    "comando": "time",
+    "descricao": "Mede quanto tempo um comando leva para executar. Mostra tempo real, de CPU e de sistema. Útil para otimização."
+  },
+  {
+    "comando": "timeout",
+    "descricao": "Limita o tempo máximo de execução de um comando. Se passar do tempo, cancela automaticamente. Evita processos travados. com' para após 10 segundos."
+  },
+  {
+    "comando": "date",
+    "descricao": "Exibe a data e hora atual do sistema. Pode formatar de várias formas. Também serve para ajustar data (como root). Exemplo: mostra 'Sáb 25 Abr 2026 14:30:00'."
+  },
+  {
+    "comando": "cal",
+    "descricao": "Mostra um calendário do mês atual no terminal. Pode mostrar ano inteiro ou mês específico. Destaca o dia atual."
+  },
+  {
+    "comando": "uptime",
+    "descricao": "Mostra há quanto tempo o sistema está ligado sem reiniciar. Também exibe carga média do sistema. Útil para servidores. Exemplo: pode mostrar '15 dias, 3 horas'."
+  },
+  {
+    "comando": "w",
+    "descricao": "Mostra quem está logado no sistema e o que está fazendo. Exibe usuários, terminais e comandos em execução. Mais completo que 'who'. Exemplo: vê se alguém está usando o servidor."
+  },
+  {
+    "comando": "who",
+    "descricao": "Lista todos os usuários conectados ao sistema no momento. Mostra nome, terminal e hora de login. Mais simples que 'w'. Exemplo: verifica quantas pessoas estão logadas."
+  },
+  {
+    "comando": "whoami",
+    "descricao": "Mostra o nome do usuário que você está usando agora. Útil quando você troca de usuário com 'su'. Comando simples e direto. Exemplo: pode mostrar 'joao' ou 'root'."
+  },
+  {
+    "comando": "id",
+    "descricao": "Exibe IDs numéricos do usuário e grupos. Mostra UID (user ID) e GID (group ID). Útil para permissões. Exemplo: mostra 'uid=1000(joao) gid=1000(joao)'."
+  },
+  {
+    "comando": "users",
+    "descricao": "Lista nomes de todos os usuários logados, um ao lado do outro. Versão simplificada de 'who'. Mostra só os nomes. Exemplo: pode mostrar 'joao maria pedro'."
+  },
+  {
+    "comando": "finger",
+    "descricao": "Mostra informações detalhadas sobre um usuário. Exibe nome completo, diretório home e último login. Nem sempre está instalado. Exemplo: vê detalhes do usuário 'joao'."
+  },
+  {
+    "comando": "last",
+    "descricao": "Mostra histórico dos últimos logins no sistema. Lista usuário, terminal, IP e duração da sessão. Útil para auditoria. Exemplo: vê quem acessou o servidor ontem."
+  },
+  {
+    "comando": "logname",
+    "descricao": "Exibe o nome de login original, mesmo após trocar de usuário. Diferente de 'whoami' que mostra usuário atual. Útil em scripts. Exemplo: sempre mostra quem fez login primeiro."
+  },
+  {
+    "comando": "groups",
+    "descricao": "Lista todos os grupos aos quais o usuário pertence. Grupos controlam permissões de acesso. Cada usuário pode ter vários grupos. Exemplo: pode mostrar 'joao sudo docker'."
+  },
+  {
+    "comando": "su",
+    "descricao": "⚠️ Troca para outro usuário, geralmente root (administrador). Pede senha do usuário destino. Use com cuidado como root."
+  },
+  {
+    "comando": "sudo",
+    "descricao": "⚠️ Executa um único comando como administrador (root). Mais seguro que 'su'. Pede sua própria senha."
+  },
+  {
+    "comando": "passwd",
+    "descricao": "Altera a senha do usuário atual ou de outro usuário. Pede senha antiga primeiro. Senha não aparece ao digitar."
+  },
+  {
+    "comando": "useradd",
+    "descricao": "⚠️ Cria um novo usuário no sistema. Requer permissões de root. Define nome, home e shell."
+  },
+  {
+    "comando": "userdel",
+    "descricao": "⚠️ Remove um usuário do sistema permanentemente. Pode apagar ou manter arquivos do usuário. Use com cuidado."
+  },
+  {
+    "comando": "usermod",
+    "descricao": "⚠️ Modifica configurações de um usuário existente. Pode mudar nome, grupos, shell ou home. Requer root. Exemplo: adiciona usuário a um grupo."
+  },
+  {
+    "comando": "groupadd",
+    "descricao": "⚠️ Cria um novo grupo de usuários no sistema. Grupos organizam permissões. Requer root."
+  },
+  {
+    "comando": "groupdel",
+    "descricao": "⚠️ Remove um grupo de usuários do sistema. Não remove os usuários, só o grupo. Requer permissões de root."
+  },
+  {
+    "comando": "groupmod",
+    "descricao": "⚠️ Modifica configurações de um grupo existente. Pode mudar nome ou ID do grupo. Requer root. Exemplo: renomeia grupo ou muda seu número de identificação."
+  },
+  {
+    "comando": "df",
+    "descricao": "Mostra espaço livre e usado em todos os discos montados. Exibe em bytes, use '-h' para formato humano. Essencial para monitorar disco. Exemplo: vê se HD está cheio."
+  },
+  {
+    "comando": "du",
+    "descricao": "Calcula quanto espaço cada diretório está usando. Pode ser recursivo. Use '-h' para tamanhos legíveis."
+  },
+  {
+    "comando": "free",
+    "descricao": "Exibe quantidade de memória RAM livre e usada no sistema. Mostra também memória swap. Use '-h' para formato humano. Exemplo: vê se precisa de mais RAM."
+  },
+  {
+    "comando": "mount",
+    "descricao": "⚠️ Monta (conecta) um sistema de arquivos ou dispositivo. Necessário para acessar pendrives, HDs externos. Requer root. Exemplo: monta pendrive em /mnt/usb."
+  },
+  {
+    "comando": "umount",
+    "descricao": "⚠️ Desmonta um sistema de arquivos montado. Sempre desmonte antes de remover pendrive. Requer root."
+  },
+  {
+    "comando": "fdisk",
+    "descricao": "⚠️ PERIGO! Gerencia partições de disco. Pode criar, deletar e modificar partições. Uso incorreto pode perder dados. Requer root. Exemplo: cria nova partição no HD."
+  },
+  {
+    "comando": "mkfs",
+    "descricao": "⚠️ PERIGO! Cria (formata) um sistema de arquivos novo. Apaga todos os dados da partição. Use com extremo cuidado. ext4' formata em ext4."
+  },
+  {
+    "comando": "fsck",
+    "descricao": "⚠️ Verifica e repara erros em sistema de arquivos. Deve ser usado com partição desmontada. Pode corrigir problemas de disco. Exemplo: conserta erros após desligamento incorreto."
+  },
+  {
+    "comando": "dd",
+    "descricao": "⚠️ PERIGO! Copia e converte arquivos em baixo nível. Pode clonar discos inteiros. Uso incorreto pode destruir dados. Exemplo: cria backup de HD ou grava ISO em pendrive."
+  },
+  {
+    "comando": "tar",
+    "descricao": "Empacota vários arquivos em um único arquivo. Não compacta por padrão. Muito usado para backup. tar pasta/' empacota a pasta."
+  },
+  {
+    "comando": "gzip",
+    "descricao": "Compacta arquivos para economizar espaço. Cria arquivo.gz. Reduz tamanho significativamente. txt' cria arquivo.txt.gz menor."
+  },
+  {
+    "comando": "gunzip",
+    "descricao": "Descompacta arquivos.gz criados pelo gzip. Restaura arquivo original. Remove o.gz após descompactar. gz' volta ao arquivo normal."
+  },
+  {
+    "comando": "bzip2",
+    "descricao": "Compacta arquivos com melhor taxa que gzip. Cria arquivo.bz2. Mais lento mas compacta mais. mp4' reduz bastante o tamanho."
+  },
+  {
+    "comando": "bunzip2",
+    "descricao": "Descompacta arquivos.bz2 criados pelo bzip2. Restaura arquivo original. Remove o.bz2. bz2' descompacta o arquivo."
+  },
+  {
+    "comando": "zip",
+    "descricao": "Cria arquivos compactados no formato.zip. Compatível com Windows. Pode compactar várias pastas. zip pasta/' compacta tudo."
+  },
+  {
+    "comando": "unzip",
+    "descricao": "Extrai arquivos de um arquivo.zip. Compatível com zips do Windows. Pode listar conteúdo antes. zip' extrai todos os arquivos."
+  },
+  {
+    "comando": "rar",
+    "descricao": "Compacta arquivos no formato.rar. Boa compressão mas não vem instalado por padrão. Formato proprietário. rar pasta/' cria arquivo rar."
+  },
+  {
+    "comando": "unrar",
+    "descricao": "Extrai arquivos de um arquivo.rar. Precisa instalar separadamente. Lê arquivos rar do Windows. rar' extrai o conteúdo."
+  },
+  {
+    "comando": "xz",
+    "descricao": "Compacta arquivos com a melhor taxa de compressão. Cria arquivo.xz. Mais lento mas menor resultado. tar' cria arquivo.tar.xz bem compacto."
+  },
+  {
+    "comando": "unxz",
+    "descricao": "Descompacta arquivos.xz. Restaura arquivo original. Remove o.xz após descompactar. xz' volta ao arquivo normal."
+  },
+  {
+    "comando": "ping",
+    "descricao": "Testa se um computador ou site está acessível na rede. Envia pacotes e mede tempo de resposta. Aperte Ctrl+C para parar. com' testa conexão com Google."
+  },
+  {
+    "comando": "ifconfig",
+    "descricao": "⚠️ Configura e exibe informações de interfaces de rede. Mostra IP, máscara e MAC address. Sendo substituído por 'ip'. Exemplo: vê seu endereço IP local."
+  },
+  {
+    "comando": "ip",
+    "descricao": "Gerencia configurações de rede e rotas. Substituto moderno do 'ifconfig'. Mais poderoso e completo."
+  },
+  {
+    "comando": "netstat",
+    "descricao": "Exibe estatísticas e conexões de rede ativas. Mostra portas abertas e conexões estabelecidas. Útil para diagnóstico. Exemplo: vê quais programas estão usando internet."
+  },
+  {
+    "comando": "ss",
+    "descricao": "Mostra informações de sockets de rede. Substituto moderno e mais rápido do 'netstat'. Exibe conexões ativas."
+  },
+  {
+    "comando": "route",
+    "descricao": "Exibe e modifica a tabela de roteamento de rede. Mostra por onde os pacotes vão. Sendo substituído por 'ip route'. Exemplo: vê o gateway padrão."
+  },
+  {
+    "comando": "traceroute",
+    "descricao": "Rastreia o caminho que pacotes fazem até um destino. Mostra todos os roteadores no meio do caminho. Útil para diagnóstico. Exemplo: vê por onde passa conexão até site."
+  },
+  {
+    "comando": "nslookup",
+    "descricao": "Consulta servidores DNS para resolver nomes de domínio. Converte nome em IP e vice-versa. Ferramenta de diagnóstico. com' mostra IP do Google."
+  },
+  {
+    "comando": "dig",
+    "descricao": "Ferramenta avançada de consulta DNS. Mais completa que 'nslookup'. Mostra detalhes técnicos de DNS. com' mostra registros DNS completos."
+  },
+  {
+    "comando": "host",
+    "descricao": "Resolve nomes de domínio para endereços IP de forma simples. Mais direto que 'dig'. Também faz busca reversa. com' mostra IP rapidamente."
+  },
+  {
+    "comando": "whois",
+    "descricao": "Busca informações sobre proprietário de um domínio. Mostra dados de registro, contato e servidores. Útil para pesquisa. Exemplo: vê quem é dono de um site."
+  },
+  {
+    "comando": "wget",
+    "descricao": "Baixa arquivos da internet via HTTP, HTTPS ou FTP. Pode continuar downloads interrompidos. Funciona em background."
+  },
+  {
+    "comando": "curl",
+    "descricao": "Transfere dados de ou para URLs. Mais versátil que 'wget'. Suporta muitos protocolos."
+  },
+  {
+    "comando": "ssh",
+    "descricao": "Conecta remotamente a outro computador de forma segura e criptografada. Permite controlar servidor à distância. Padrão para administração remota."
+  },
+  {
+    "comando": "scp",
+    "descricao": "Copia arquivos entre computadores via SSH de forma segura. Funciona como 'cp' mas pela rede. Criptografa durante transferência. Exemplo: copia arquivo para servidor remoto."
+  },
+  {
+    "comando": "sftp",
+    "descricao": "Transfere arquivos via SSH com interface interativa. Mais seguro que FTP tradicional. Permite navegar em pastas remotas. Exemplo: envia arquivos para servidor com segurança."
+  },
+  {
+    "comando": "rsync",
+    "descricao": "Sincroniza arquivos e diretórios entre locais. Copia apenas diferenças, economizando tempo. Muito usado para backup. Exemplo: mantém backup atualizado automaticamente."
+  },
+  {
+    "comando": "ftp",
+    "descricao": "Cliente FTP para transferir arquivos. Protocolo antigo e inseguro. Prefira SFTP quando possível. Exemplo: conecta a servidor FTP para upload/download."
+  },
+  {
+    "comando": "nc",
+    "descricao": "Netcat - ferramenta versátil para ler e escrever dados em rede. Pode criar servidores simples ou testar portas. Muito usada em segurança. Exemplo: testa se porta está aberta."
+  },
+  {
+    "comando": "telnet",
+    "descricao": "⚠️ Conecta a servidores remotos via protocolo Telnet. Inseguro, não criptografa dados. Use SSH no lugar. Exemplo: testa se serviço está respondendo em uma porta."
+  },
+  {
+    "comando": "hostname",
+    "descricao": "Exibe ou define o nome do computador na rede. Identifica a máquina. Pode ser temporário ou permanente. Exemplo: mostra 'meu-computador' ou 'servidor-web'."
+  },
+  {
+    "comando": "uname",
+    "descricao": "Mostra informações sobre o sistema operacional. Exibe nome, versão do kernel e arquitetura. Use '-a' para tudo. Exemplo: mostra 'Linux 5.15.0 x86_64'."
+  },
+  {
+    "comando": "arch",
+    "descricao": "Exibe a arquitetura do processador. Mostra se é 32 ou 64 bits. Útil para instalar software correto. Exemplo: mostra 'x86_64' para 64 bits."
+  },
+  {
+    "comando": "lscpu",
+    "descricao": "Lista informações detalhadas sobre a CPU. Mostra núcleos, threads, velocidade e cache. Útil para diagnóstico. Exemplo: vê quantos núcleos tem o processador."
+  },
+  {
+    "comando": "lsblk",
+    "descricao": "Lista todos os dispositivos de bloco (discos e partições). Mostra estrutura em árvore. Exibe tamanhos e pontos de montagem. Exemplo: vê todos os HDs e pendrives."
+  },
+  {
+    "comando": "lspci",
+    "descricao": "Lista todos os dispositivos PCI conectados. Mostra placas de vídeo, rede, som. Útil para identificar hardware. Exemplo: vê qual placa de vídeo está instalada."
+  },
+  {
+    "comando": "lsusb",
+    "descricao": "Lista todos os dispositivos USB conectados. Mostra mouse, teclado, pendrives. Exibe IDs dos dispositivos. Exemplo: vê se pendrive foi reconhecido."
+  },
+  {
+    "comando": "lsof",
+    "descricao": "Lista todos os arquivos abertos no sistema. Mostra qual processo está usando cada arquivo. Útil para diagnóstico. Exemplo: vê quem está usando um arquivo."
+  },
+  {
+    "comando": "dmesg",
+    "descricao": "Exibe mensagens do kernel do sistema. Mostra logs de hardware e drivers. Útil para diagnóstico de problemas. Exemplo: vê erros de hardware ao iniciar."
+  },
+  {
+    "comando": "journalctl",
+    "descricao": "Visualiza logs do sistema (systemd). Mostra histórico de eventos e erros. Pode filtrar por serviço ou data. Exemplo: vê logs de um serviço específico."
+  },
+  {
+    "comando": "systemctl",
+    "descricao": "⚠️ Gerencia serviços do sistema (systemd). Inicia, para, reinicia e verifica status. Requer root para mudanças."
+  },
+  {
+    "comando": "service",
+    "descricao": "⚠️ Controla serviços do sistema (método antigo). Inicia e para serviços. Sendo substituído por 'systemctl'."
+  },
+  {
+    "comando": "shutdown",
+    "descricao": "⚠️ Desliga o sistema de forma segura. Pode agendar horário. Fecha programas corretamente."
+  },
+  {
+    "comando": "reboot",
+    "descricao": "⚠️ Reinicia o computador de forma segura. Fecha tudo antes de reiniciar. Requer permissões de root. Exemplo: reinicia após instalar atualizações."
+  },
+  {
+    "comando": "halt",
+    "descricao": "⚠️ Para o sistema completamente. Mais abrupto que 'shutdown'. Desliga sem avisos. Exemplo: para o sistema rapidamente."
+  },
+  {
+    "comando": "poweroff",
+    "descricao": "⚠️ Desliga o computador completamente. Corta a energia após fechar sistema. Similar a 'shutdown -h now'. Exemplo: desliga e pode desconectar da tomada."
+  },
+  {
+    "comando": "init",
+    "descricao": "⚠️ Muda o nível de execução do sistema. Controla modo de operação. 0=desligar, 6=reiniciar. Comando de baixo nível."
+  },
+  {
+    "comando": "logout",
+    "descricao": "Sai da sessão atual do usuário. Fecha o terminal ou sessão SSH. Não desliga o computador. Exemplo: encerra sua sessão mas sistema continua rodando."
+  },
+  {
+    "comando": "exit",
+    "descricao": "Fecha o terminal ou shell atual. Encerra a sessão. Se for último terminal, pode deslogar. Exemplo: fecha janela do terminal."
+  },
+  {
+    "comando": "clear",
+    "descricao": "Limpa toda a tela do terminal. Remove texto antigo da visualização. Não apaga histórico. Exemplo: deixa terminal limpo para trabalhar."
+  },
+  {
+    "comando": "reset",
+    "descricao": "Reinicia o terminal completamente. Mais forte que 'clear'. Corrige problemas de exibição. Exemplo: conserta terminal com caracteres estranhos."
+  },
+  {
+    "comando": "history",
+    "descricao": "Mostra histórico de todos os comandos digitados. Pode repetir comandos antigos. Numerado para referência. Exemplo: vê os últimos 100 comandos usados."
+  },
+  {
+    "comando": "alias",
+    "descricao": "Cria atalhos personalizados para comandos. Economiza digitação. Pode combinar vários comandos."
+  },
+  {
+    "comando": "unalias",
+    "descricao": "Remove um atalho (alias) criado anteriormente. Volta comando ao normal. Não afeta comandos reais."
+  },
+  {
+    "comando": "export",
+    "descricao": "Define variáveis de ambiente disponíveis para programas. Configura PATH, LANG, etc. Persiste na sessão."
+  },
+  {
+    "comando": "env",
+    "descricao": "Exibe todas as variáveis de ambiente do sistema. Mostra configurações globais. Pode executar comando com ambiente modificado. Exemplo: vê todas as variáveis definidas."
+  },
+  {
+    "comando": "printenv",
+    "descricao": "Imprime variáveis de ambiente, similar ao 'env'. Pode mostrar variável específica. Mais simples que 'env'."
+  },
+  {
+    "comando": "set",
+    "descricao": "Define opções do shell e variáveis. Mostra todas as variáveis se usado sozinho. Controla comportamento do bash. Exemplo: ativa ou desativa opções do terminal."
+  },
+  {
+    "comando": "unset",
+    "descricao": "Remove uma variável de ambiente ou do shell. Apaga a definição. Oposto de 'export' ou 'set'."
+  },
+  {
+    "comando": "source",
+    "descricao": "Executa comandos de um arquivo script no shell atual. Carrega configurações. Também pode usar ponto '.'. bashrc' recarrega configurações."
+  },
+  {
+    "comando": "bash",
+    "descricao": "Inicia um novo shell Bash. Pode executar scripts. Shell mais popular do Linux. sh' executa um script."
+  },
+  {
+    "comando": "sh",
+    "descricao": "Inicia shell padrão POSIX. Mais simples que bash. Compatível com scripts antigos. Exemplo: executa scripts básicos de shell."
+  },
+  {
+    "comando": "crontab",
+    "descricao": "Agenda tarefas para executar automaticamente em horários definidos. Cria rotinas diárias, semanais ou mensais. Muito usado para backups. Exemplo: roda script todo dia às 2h da manhã."
+  },
+  {
+    "comando": "at",
+    "descricao": "Executa um comando uma única vez em horário futuro específico. Diferente de cron que repete. Útil para tarefas pontuais. Exemplo: desliga computador às 23h."
+  },
+  {
+    "comando": "yes",
+    "descricao": "Repete uma string infinitamente até ser interrompido. Usado em scripts para responder 'sim' automaticamente. Aperte Ctrl+C para parar."
+  },
+  {
+    "comando": "seq",
+    "descricao": "Gera sequência de números. Útil em loops de scripts. Define início, fim e incremento."
+  },
+  {
+    "comando": "basename",
+    "descricao": "Extrai apenas o nome do arquivo de um caminho completo. Remove o diretório. Útil em scripts. Exemplo: '/home/user/foto.jpg' vira 'foto.jpg'."
+  },
+  {
+    "comando": "dirname",
+    "descricao": "Extrai apenas o caminho do diretório, removendo o nome do arquivo. Oposto de 'basename'. Útil em scripts. Exemplo: '/home/user/foto.jpg' vira '/home/user'."
+  },
+  {
+    "comando": "expr",
+    "descricao": "Avalia expressões matemáticas e lógicas. Faz cálculos simples no terminal. Usado em scripts antigos."
+  },
+  {
+    "comando": "bc",
+    "descricao": "Calculadora avançada de linha de comando. Suporta decimais e funções matemáticas. Mais poderosa que 'expr'. Exemplo: pode calcular raiz quadrada e potências."
+  },
+  {
+    "comando": "factor",
+    "descricao": "Fatora um número em seus fatores primos. Mostra divisores. Útil para matemática."
+  },
+  {
+    "comando": "true",
+    "descricao": "Comando que sempre retorna sucesso (código 0). Usado em scripts e testes. Não faz nada visível. Exemplo: usado em loops infinitos 'while true'."
+  },
+  {
+    "comando": "false",
+    "descricao": "Comando que sempre retorna falha (código 1). Oposto de 'true'. Usado em scripts e testes. Exemplo: testa comportamento de erro em scripts."
+  }
 ]
